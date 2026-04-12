@@ -1,0 +1,225 @@
+import groovy.json.JsonSlurper
+
+import java.util.zip.ZipFile
+
+plugins {
+    id 'fabric-loom' version "${loom_version}"
+}
+
+base {
+    archivesName = "${mod_id}-fabric-${minecraft_version}"
+}
+
+sourceSets {
+    main {
+        java.srcDirs += project(':common').sourceSets.main.java.srcDirs
+        resources.srcDirs += project(':common').sourceSets.main.resources.srcDirs
+    }
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+    modRuntimeOnly "com.terraformersmc:modmenu:${modmenu_version}"
+
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+}
+
+loom {
+    getEnableModProvidedJavadoc().set(false)
+
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+        }
+        server {
+            server()
+            setConfigName('Fabric Dedicated Server')
+            ideConfigGenerated(true)
+        }
+    }
+}
+
+def metadataProperties = [
+        mod_id                        : mod_id,
+        mod_name                      : mod_name,
+        mod_version                   : project.version,
+        mod_description               : mod_description,
+        mod_author                    : mod_author,
+        mod_license                   : mod_license,
+        mod_icon                      : mod_icon,
+        mod_homepage                  : mod_homepage,
+        mod_sources                   : mod_sources,
+        mod_issues                    : mod_issues,
+        minecraft_version             : minecraft_version,
+        fabric_minecraft_version_range: fabric_minecraft_version_range,
+        loader_version                : loader_version,
+        fabric_api_version            : fabric_api_version
+]
+
+def commonIconFile = project(':common').layout.projectDirectory.file("src/main/resources/${mod_icon}").asFile
+def productionModJsonFile = layout.projectDirectory.file('src/main/resources/fabric.mod.json').asFile
+
+processResources {
+    inputs.properties(metadataProperties)
+
+    filesMatching('fabric.mod.json') {
+        expand(metadataProperties)
+    }
+}
+
+tasks.register('validateProductionMetadata') {
+    group = 'verification'
+    description = 'Validates Fabric production metadata and icon dimensions.'
+    dependsOn tasks.processResources
+
+    doLast {
+        if (!commonIconFile.exists()) {
+            throw new GradleException("Missing icon file: ${commonIconFile}")
+        }
+
+        def image = javax.imageio.ImageIO.read(commonIconFile)
+        if (image == null) {
+            throw new GradleException("Icon is not a valid image: ${commonIconFile}")
+        }
+        if (image.width != 512 || image.height != 512) {
+            throw new GradleException("Icon must be exactly 512x512, got ${image.width}x${image.height}")
+        }
+
+        if (!productionModJsonFile.exists()) {
+            throw new GradleException("Missing fabric.mod.json in ${productionModJsonFile.parentFile}")
+        }
+    }
+}
+
+def parseMinecraftVersion = { String versionText ->
+    def matcher = (versionText =~ /^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/)
+    if (!matcher.matches()) {
+        throw new GradleException("Invalid Minecraft version '${versionText}'. Expected format: MAJOR.MINOR.PATCH")
+    }
+
+    [
+            major: matcher.group(1).toInteger(),
+            minor: matcher.group(2).toInteger(),
+            patch: matcher.group(3).toInteger()
+    ]
+}
+
+def compareMinecraftVersions = { String left, String right ->
+    def parsedLeft = parseMinecraftVersion(left)
+    def parsedRight = parseMinecraftVersion(right)
+
+    (parsedLeft.major <=> parsedRight.major) ?:
+            (parsedLeft.minor <=> parsedRight.minor) ?:
+            (parsedLeft.patch <=> parsedRight.patch)
+}
+
+def supportsMinecraftRequirement = { String versionText, String requirementText ->
+    def normalizedRequirement = requirementText?.trim()
+    if (normalizedRequirement == null || normalizedRequirement.isEmpty() || normalizedRequirement == '*') {
+        return true
+    }
+
+    def clauses = normalizedRequirement.split(/\s+/).findAll { !it.isEmpty() }
+    clauses.every { clause ->
+        if (clause == '*') {
+            return true
+        }
+        if (clause.startsWith(">=")) {
+            return compareMinecraftVersions(versionText, clause.substring(2)) >= 0
+        }
+        if (clause.startsWith("<=")) {
+            return compareMinecraftVersions(versionText, clause.substring(2)) <= 0
+        }
+        if (clause.startsWith(">")) {
+            return compareMinecraftVersions(versionText, clause.substring(1)) > 0
+        }
+        if (clause.startsWith("<")) {
+            return compareMinecraftVersions(versionText, clause.substring(1)) < 0
+        }
+        if (clause.startsWith("=")) {
+            return compareMinecraftVersions(versionText, clause.substring(1)) == 0
+        }
+        if (!(clause ==~ /^\d+\.\d+\.\d+$/)) {
+            throw new GradleException("Unsupported Fabric Minecraft requirement syntax '${requirementText}' in dependency metadata.")
+        }
+        return compareMinecraftVersions(versionText, clause) == 0
+    }
+}
+
+def readFabricModMetadata = { File jarFile ->
+    try (def zip = new ZipFile(jarFile)) {
+        def entry = zip.getEntry('fabric.mod.json')
+        if (entry == null) {
+            return null
+        }
+
+        try (def stream = zip.getInputStream(entry)) {
+            return new JsonSlurper().parse(stream)
+        }
+    }
+}
+
+tasks.register('verifyRuntimeDependencyCompatibility') {
+    group = 'verification'
+    description = 'Checks whether declared Fabric runtime dependencies support every configured Fabric game version.'
+
+    doLast {
+        def supportedVersions = fabric_game_versions
+                .toString()
+                .split(',')
+                .collect { it.trim() }
+                .findAll { !it.isEmpty() }
+        def incompatibleDependencies = []
+
+        [
+                "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}",
+                "com.terraformersmc:modmenu:${modmenu_version}"
+        ].each { notation ->
+            def compatibilityConfig = configurations.detachedConfiguration(dependencies.create(notation))
+            compatibilityConfig.transitive = false
+
+            def artifact = compatibilityConfig.resolvedConfiguration.resolvedArtifacts.first()
+            def metadata = readFabricModMetadata(artifact.file)
+            if (metadata == null) {
+                throw new GradleException("Missing fabric.mod.json in resolved dependency ${artifact.moduleVersion.id}")
+            }
+
+            def minecraftRequirement = metadata.depends?.minecraft?.toString()
+            if (minecraftRequirement == null) {
+                throw new GradleException("Resolved dependency ${artifact.moduleVersion.id} does not declare a minecraft dependency in fabric.mod.json")
+            }
+
+            def incompatibleVersions = supportedVersions.findAll { version ->
+                !supportsMinecraftRequirement(version, minecraftRequirement)
+            }
+            if (!incompatibleVersions.isEmpty()) {
+                incompatibleDependencies << "${artifact.moduleVersion.id} requires '${minecraftRequirement}' but fabric_game_versions declares ${supportedVersions} (fails: ${incompatibleVersions.join(', ')})"
+            }
+        }
+
+        if (!incompatibleDependencies.isEmpty()) {
+            throw new GradleException(
+                    "Fabric runtime dependency metadata is incompatible with configured Fabric support:\n - " +
+                            incompatibleDependencies.join('\n - ')
+            )
+        }
+    }
+}
+
+tasks.named('check') {
+    dependsOn(tasks.named('verifyRuntimeDependencyCompatibility'))
+}
+
+jar {
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${mod_id}" }
+    }
+}

@@ -1,5 +1,14 @@
 # Compiled class file
 *.class
+.gradle/
+build/
+common/build/
+fabric/build/
+neoforge/build/
+run/
+out/
+.idea/
+.vscode/
 
 # Log file
 *.log
