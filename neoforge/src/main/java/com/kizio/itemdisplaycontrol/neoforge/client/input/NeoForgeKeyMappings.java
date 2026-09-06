@@ -12,15 +12,21 @@ public final class NeoForgeKeyMappings {
 
     private static final int DEFAULT_TOGGLE_KEY = GLFW.GLFW_KEY_J;
     private static final int DEFAULT_CONFIG_KEY = GLFW.GLFW_KEY_O;
+
+    @SuppressWarnings("deprecation")
+    private static final KeyMapping.Category KEY_CATEGORY = KeyMapping.Category.register(
+            net.minecraft.resources.Identifier.parse("itemdisplaycontrol:itemdisplaycontrol")
+    );
+
     private static final KeyMapping TOGGLE_KEY = new KeyMapping(
             TranslationKeys.KEY_TOGGLE,
             DEFAULT_TOGGLE_KEY,
-            TranslationKeys.CATEGORY
+            KEY_CATEGORY
     );
     private static final KeyMapping CONFIG_KEY = new KeyMapping(
             TranslationKeys.KEY_CONFIG,
             DEFAULT_CONFIG_KEY,
-            TranslationKeys.CATEGORY
+            KEY_CATEGORY
     );
 
     private NeoForgeKeyMappings() {

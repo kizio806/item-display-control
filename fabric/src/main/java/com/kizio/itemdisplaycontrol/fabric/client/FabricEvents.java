@@ -8,7 +8,7 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.Minecraft;
 
 @Environment(EnvType.CLIENT)
 public final class FabricEvents {
@@ -23,9 +23,9 @@ public final class FabricEvents {
                 ItemDisplayControl.toggleEnabled();
             }
             if (FabricKeyMappings.consumeConfigScreenPress()) {
-                MinecraftClient minecraftClient = MinecraftClient.getInstance();
+                Minecraft minecraftClient = Minecraft.getInstance();
                 if (minecraftClient != null) {
-                    minecraftClient.setScreen(new FabricSettingsScreen(minecraftClient.currentScreen));
+                    minecraftClient.setScreen(new FabricSettingsScreen(minecraftClient.screen));
                 }
             }
         });

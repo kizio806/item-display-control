@@ -2,7 +2,20 @@
 
 All notable changes to this project should be documented in this file.
 
-## 1.0.0
+## 1.1.0
+
+### Added
+- Updated mod to target Minecraft 26.1.x.
+- Migrated codebase to utilize Java 25 and official Mojang mappings natively for all loaders.
+
+### Changed
+- Standardized Gradle build environment, updating to Gradle 9.7.1 and Loom 1.15.5.
+- Migrated Fabric GUI implementations to modern extractRenderState APIs.
+- Migrated NeoForge GUI implementations to modern extractRenderState APIs.
+- Refactored identifier resolution to use natively available Mojang mappings.
+- Cleaned up obsolete GameTest implementations targeting old game versions.
+
+
 
 ### Added
 - Introduced the initial multi-loader release for Fabric and NeoForge.
