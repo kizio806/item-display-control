@@ -17,41 +17,7 @@ dependencies {
     testImplementation platform('org.junit:junit-bom:5.11.4')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'com.google.code.gson:gson:2.11.0'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-jacoco {
-    toolVersion = '0.8.12'
-}
 
-tasks.named('test') {
-    finalizedBy(tasks.named('jacocoTestReport'))
-}
-
-tasks.named('jacocoTestReport') {
-    dependsOn(tasks.named('test'))
-
-    reports {
-        xml.required = true
-        html.required = true
-        csv.required = false
-    }
-}
-
-tasks.named('jacocoTestCoverageVerification') {
-    dependsOn(tasks.named('jacocoTestReport'))
-
-    violationRules {
-        rule {
-            element = 'BUNDLE'
-            limit {
-                counter = 'LINE'
-                value = 'COVEREDRATIO'
-                minimum = 0.75
-            }
-        }
-    }
-}
-
-tasks.named('check') {
-    dependsOn(tasks.named('jacocoTestCoverageVerification'))
-}

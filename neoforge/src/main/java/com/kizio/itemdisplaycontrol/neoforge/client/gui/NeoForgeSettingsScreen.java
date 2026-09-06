@@ -4,7 +4,6 @@ import com.kizio.itemdisplaycontrol.common.ItemDisplayControl;
 import com.kizio.itemdisplaycontrol.common.config.ProtectionTarget;
 import com.kizio.itemdisplaycontrol.common.i18n.TranslationKeys;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -115,18 +114,17 @@ public final class NeoForgeSettingsScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
-        super.render(guiGraphics, mouseX, mouseY, partialTick);
+    public void extractRenderState(net.minecraft.client.gui.GuiGraphicsExtractor extractor, int mouseX, int mouseY, float partialTick) {
+        super.extractRenderState(extractor, mouseX, mouseY, partialTick);
 
         int centerX = this.width / 2;
-        guiGraphics.drawCenteredString(this.font, this.title, centerX, 20, 0xFFFFFF);
-        guiGraphics.drawCenteredString(this.font, Component.translatable(TranslationKeys.SCREEN_SETTINGS_SUBTITLE), centerX, 34, 0xA0A0A0);
-        guiGraphics.drawString(this.font, Component.translatable(TranslationKeys.GUI_WHITELIST_ITEMS), this.width / 2 - (FULL_BUTTON_WIDTH / 2), whitelistField.getY() - 12, 0xFFFFFF);
-        guiGraphics.drawString(this.font, Component.translatable(TranslationKeys.GUI_BLACKLIST_ITEMS), this.width / 2 - (FULL_BUTTON_WIDTH / 2), blacklistField.getY() - 12, 0xFFFFFF);
-        guiGraphics.drawCenteredString(this.font, Component.translatable(TranslationKeys.GUI_DESC_PRIMARY), centerX, this.height - 48, 0xA0A0A0);
-        guiGraphics.drawCenteredString(this.font, Component.translatable(TranslationKeys.GUI_DESC_RULES), centerX, this.height - 36, 0xA0A0A0);
-        guiGraphics.drawCenteredString(this.font, Component.translatable(TranslationKeys.GUI_DESC_SECONDARY), centerX, this.height - 24, 0xA0A0A0);
+        extractor.centeredText(this.font, this.title, centerX, 20, 0xFFFFFF);
+        extractor.centeredText(this.font, Component.translatable(TranslationKeys.SCREEN_SETTINGS_SUBTITLE), centerX, 34, 0xA0A0A0);
+        extractor.text(this.font, Component.translatable(TranslationKeys.GUI_WHITELIST_ITEMS), this.width / 2 - (FULL_BUTTON_WIDTH / 2), whitelistField.getY() - 12, 0xFFFFFF);
+        extractor.text(this.font, Component.translatable(TranslationKeys.GUI_BLACKLIST_ITEMS), this.width / 2 - (FULL_BUTTON_WIDTH / 2), blacklistField.getY() - 12, 0xFFFFFF);
+        extractor.centeredText(this.font, Component.translatable(TranslationKeys.GUI_DESC_PRIMARY), centerX, this.height - 48, 0xA0A0A0);
+        extractor.centeredText(this.font, Component.translatable(TranslationKeys.GUI_DESC_RULES), centerX, this.height - 36, 0xA0A0A0);
+        extractor.centeredText(this.font, Component.translatable(TranslationKeys.GUI_DESC_SECONDARY), centerX, this.height - 24, 0xA0A0A0);
     }
 
     @Override

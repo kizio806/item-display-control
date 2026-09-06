@@ -8,7 +8,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -158,7 +158,7 @@ public final class NeoForgeInteractionGuards {
         return Math.max(blockCoordinate, Math.min(blockCoordinate + 1.0D, coordinate));
     }
 
-    private static ProtectionTarget resolveBlockTarget(ResourceLocation blockId) {
+    private static ProtectionTarget resolveBlockTarget(Identifier blockId) {
         if (blockId == null) {
             return null;
         }
@@ -167,7 +167,7 @@ public final class NeoForgeInteractionGuards {
     }
 
     private static ProtectionTarget resolveEntityTarget(Entity entity) {
-        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         if (entityId == null) {
             return null;
         }
@@ -176,7 +176,7 @@ public final class NeoForgeInteractionGuards {
     }
 
     private static String resolveItemId(Item item) {
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(item);
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
         return itemId != null ? itemId.toString() : null;
     }
 

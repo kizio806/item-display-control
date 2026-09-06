@@ -25,6 +25,6 @@ public final class NeoForgeStatusMessages {
                 : TranslationKeys.MESSAGE_DISABLED)
                 .withStyle(enabled ? ChatFormatting.GREEN : ChatFormatting.RED);
 
-        client.player.displayClientMessage(Component.translatable(TranslationKeys.MESSAGE_STATUS, state), true);
+        client.player.sendOverlayMessage(Component.translatable(TranslationKeys.MESSAGE_STATUS, state));
     }
 }
