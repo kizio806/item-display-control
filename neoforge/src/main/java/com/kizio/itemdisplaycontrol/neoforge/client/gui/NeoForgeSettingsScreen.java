@@ -131,7 +131,7 @@ public final class NeoForgeSettingsScreen extends Screen {
     public void onClose() {
         ItemDisplayControl.flushPendingConfiguration();
         if (this.minecraft != null) {
-            this.minecraft.setScreen(parent);
+            this.minecraft.setScreenAndShow(parent);
         }
     }
 
