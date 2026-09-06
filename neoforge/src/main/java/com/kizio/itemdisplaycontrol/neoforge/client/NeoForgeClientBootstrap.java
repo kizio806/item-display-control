@@ -1,7 +1,7 @@
 package com.kizio.itemdisplaycontrol.neoforge.client;
 
 import com.kizio.itemdisplaycontrol.common.ItemDisplayControl;
-import com.kizio.itemdisplaycontrol.common.ModConstants;
+import com.kizio.itemdisplaycontrol.common.Constants;
 import com.kizio.itemdisplaycontrol.neoforge.client.gui.NeoForgeSettingsScreen;
 import com.kizio.itemdisplaycontrol.neoforge.client.input.NeoForgeKeyMappings;
 import com.kizio.itemdisplaycontrol.neoforge.client.interaction.NeoForgeInteractionGuards;
@@ -21,7 +21,7 @@ import java.nio.file.Path;
 @OnlyIn(Dist.CLIENT)
 public final class NeoForgeClientBootstrap {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModConstants.MOD_ID);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Constants.MOD_ID);
     private static boolean initialized;
 
     private NeoForgeClientBootstrap() {
@@ -32,7 +32,7 @@ public final class NeoForgeClientBootstrap {
             return;
         }
 
-        LOGGER.info("{} NeoForge client bootstrap starting", ModConstants.MOD_NAME);
+        LOGGER.info("{} NeoForge client bootstrap starting", Constants.MOD_NAME);
         modEventBus.addListener(NeoForgeKeyMappings::onRegisterKeyMappings);
         modEventBus.addListener(NeoForgeClientBootstrap::onClientSetup);
         NeoForge.EVENT_BUS.addListener(NeoForgeClientBootstrap::onClientTick);
@@ -49,7 +49,7 @@ public final class NeoForgeClientBootstrap {
                     : Path.of("config");
 
             ItemDisplayControl.init(NeoForgeStatusMessages::sendToggleStatus, configDir);
-            LOGGER.info("{} NeoForge config directory: {}", ModConstants.MOD_NAME, configDir.toAbsolutePath());
+            LOGGER.info("{} NeoForge config directory: {}", Constants.MOD_NAME, configDir.toAbsolutePath());
         });
     }
 

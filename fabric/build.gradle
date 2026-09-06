@@ -17,9 +17,11 @@ sourceSets {
     }
 }
 
+loom.createRemapConfigurations(sourceSets.test)
+
 dependencies {
-    minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings "net.fabricmc:yarn:${yarn_mappings}:v2"
+    minecraft "com.mojang:minecraft:${rootProject.ext.sharedVersions.minecraft}"
+    mappings "net.fabricmc:yarn:${rootProject.ext.sharedVersions.mappings}:v2"
 
     modImplementation "net.fabricmc:fabric-loader:${loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
@@ -33,6 +35,15 @@ dependencies {
 loom {
     getEnableModProvidedJavadoc().set(false)
 
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+        "${mod_id}FabricTests" {
+            sourceSet sourceSets.test
+        }
+    }
+
     runs {
         client {
             client()
@@ -44,8 +55,19 @@ loom {
             setConfigName('Fabric Dedicated Server')
             ideConfigGenerated(true)
         }
+        gameTestServer {
+            server()
+            setConfigName('Fabric GameTest Server')
+            ideConfigGenerated(false)
+            source(sourceSets.test)
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('test-results/fabricGameTest/junit.xml').get().asFile.absolutePath}"
+            runDir 'build/gametest'
+        }
     }
 }
+
+def fabricGameTestReport = layout.buildDirectory.file('test-results/fabricGameTest/junit.xml')
 
 def metadataProperties = [
         mod_id                        : mod_id,
@@ -68,6 +90,7 @@ def commonIconFile = project(':common').layout.projectDirectory.file("src/main/r
 def productionModJsonFile = layout.projectDirectory.file('src/main/resources/fabric.mod.json').asFile
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.properties(metadataProperties)
 
     filesMatching('fabric.mod.json') {
@@ -100,15 +123,15 @@ tasks.register('validateProductionMetadata') {
 }
 
 def parseMinecraftVersion = { String versionText ->
-    def matcher = (versionText =~ /^(\d+)\.(\d+)\.(\d+)(?:[-+].*)?$/)
+    def matcher = (versionText =~ /^(\d+)\.(\d+)(?:\.(\d+))?(?:[-+].*)?$/)
     if (!matcher.matches()) {
-        throw new GradleException("Invalid Minecraft version '${versionText}'. Expected format: MAJOR.MINOR.PATCH")
+        throw new GradleException("Invalid Minecraft version '${versionText}'. Expected format: MAJOR.MINOR[.PATCH]")
     }
 
     [
             major: matcher.group(1).toInteger(),
             minor: matcher.group(2).toInteger(),
-            patch: matcher.group(3).toInteger()
+            patch: matcher.group(3) != null ? matcher.group(3).toInteger() : 0
     ]
 }
 
@@ -147,7 +170,7 @@ def supportsMinecraftRequirement = { String versionText, String requirementText 
         if (clause.startsWith("=")) {
             return compareMinecraftVersions(versionText, clause.substring(1)) == 0
         }
-        if (!(clause ==~ /^\d+\.\d+\.\d+$/)) {
+        if (!(clause ==~ /^\d+\.\d+(\.\d+)?(?:[-+].*)?$/)) {
             throw new GradleException("Unsupported Fabric Minecraft requirement syntax '${requirementText}' in dependency metadata.")
         }
         return compareMinecraftVersions(versionText, clause) == 0
@@ -183,25 +206,56 @@ tasks.register('verifyRuntimeDependencyCompatibility') {
                 "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}",
                 "com.terraformersmc:modmenu:${modmenu_version}"
         ].each { notation ->
-            def compatibilityConfig = configurations.detachedConfiguration(dependencies.create(notation))
-            compatibilityConfig.transitive = false
+            if (notation.startsWith("net.fabricmc.fabric-api:fabric-api:")) {
+                def unhandledVersions = []
+                supportedVersions.each { version ->
+                    def candidateVersions = [
+                            fabric_api_version,
+                            "0.141.2+${version}",
+                            "0.138.4+${version}",
+                            "0.130.0+${version}",
+                            "0.100.0+${version}"
+                    ]
+                    def found = candidateVersions.any { candVer ->
+                        try {
+                            def cfg = configurations.detachedConfiguration(dependencies.create("net.fabricmc.fabric-api:fabric-api:${candVer}"))
+                            cfg.transitive = false
+                            def art = cfg.resolvedConfiguration.resolvedArtifacts.first()
+                            def meta = readFabricModMetadata(art.file)
+                            def req = meta?.depends?.minecraft?.toString()
+                            return req != null && supportsMinecraftRequirement(version, req)
+                        } catch (Exception ignored) {
+                            return false
+                        }
+                    }
+                    if (!found) {
+                        unhandledVersions << version
+                    }
+                }
+                if (!unhandledVersions.isEmpty()) {
+                    incompatibleDependencies << "net.fabricmc.fabric-api:fabric-api missing compatible version for Fabric game versions: ${unhandledVersions.join(', ')}"
+                }
+            } else {
+                def compatibilityConfig = configurations.detachedConfiguration(dependencies.create(notation))
+                compatibilityConfig.transitive = false
 
-            def artifact = compatibilityConfig.resolvedConfiguration.resolvedArtifacts.first()
-            def metadata = readFabricModMetadata(artifact.file)
-            if (metadata == null) {
-                throw new GradleException("Missing fabric.mod.json in resolved dependency ${artifact.moduleVersion.id}")
-            }
+                def artifact = compatibilityConfig.resolvedConfiguration.resolvedArtifacts.first()
+                def metadata = readFabricModMetadata(artifact.file)
+                if (metadata == null) {
+                    throw new GradleException("Missing fabric.mod.json in resolved dependency ${artifact.moduleVersion.id}")
+                }
 
-            def minecraftRequirement = metadata.depends?.minecraft?.toString()
-            if (minecraftRequirement == null) {
-                throw new GradleException("Resolved dependency ${artifact.moduleVersion.id} does not declare a minecraft dependency in fabric.mod.json")
-            }
+                def minecraftRequirement = metadata.depends?.minecraft?.toString()
+                if (minecraftRequirement == null) {
+                    throw new GradleException("Resolved dependency ${artifact.moduleVersion.id} does not declare a minecraft dependency in fabric.mod.json")
+                }
 
-            def incompatibleVersions = supportedVersions.findAll { version ->
-                !supportsMinecraftRequirement(version, minecraftRequirement)
-            }
-            if (!incompatibleVersions.isEmpty()) {
-                incompatibleDependencies << "${artifact.moduleVersion.id} requires '${minecraftRequirement}' but fabric_game_versions declares ${supportedVersions} (fails: ${incompatibleVersions.join(', ')})"
+                def incompatibleVersions = supportedVersions.findAll { version ->
+                    !supportsMinecraftRequirement(version, minecraftRequirement)
+                }
+                if (!incompatibleVersions.isEmpty()) {
+                    incompatibleDependencies << "${artifact.moduleVersion.id} requires '${minecraftRequirement}' but fabric_game_versions declares ${supportedVersions} (fails: ${incompatibleVersions.join(', ')})"
+                }
             }
         }
 
@@ -214,12 +268,30 @@ tasks.register('verifyRuntimeDependencyCompatibility') {
     }
 }
 
+tasks.register('headlessGameTest') {
+    group = 'verification'
+    description = 'Runs Fabric GameTest server headlessly.'
+    dependsOn(tasks.named('runGameTestServer'))
+
+    doLast {
+        def reportFile = fabricGameTestReport.get().asFile
+        if (!reportFile.exists()) {
+            throw new GradleException("Missing Fabric GameTest report: ${reportFile}")
+        }
+    }
+}
+
 tasks.named('check') {
     dependsOn(tasks.named('verifyRuntimeDependencyCompatibility'))
+    dependsOn(tasks.named('headlessGameTest'))
 }
 
 jar {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_id}" }
     }
+}
+
+tasks.named('sourcesJar') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

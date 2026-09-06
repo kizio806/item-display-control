@@ -15,10 +15,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 public final class ItemDisplayControl {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModConstants.MOD_ID);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Constants.MOD_ID);
     private static final int CONFIG_SAVE_DEBOUNCE_TICKS = 10;
     private static final ExecutorService CONFIG_IO_EXECUTOR = Executors.newSingleThreadExecutor(task -> {
-        Thread thread = new Thread(task, ModConstants.MOD_ID + "-config-io");
+        Thread thread = new Thread(task, Constants.MOD_ID + "-config-io");
         thread.setDaemon(true);
         return thread;
     });
@@ -46,7 +46,7 @@ public final class ItemDisplayControl {
         loadConfiguration(Objects.requireNonNull(configDirectory, "configDirectory"));
 
         initialized = true;
-        LOGGER.info("{} initialized", ModConstants.MOD_NAME);
+        LOGGER.info("{} initialized", Constants.MOD_NAME);
     }
     public static synchronized void onClientTick() {
         if (!initialized) {
@@ -61,7 +61,7 @@ public final class ItemDisplayControl {
         runtimeConfig.setEnabled(enabled);
         markConfigurationDirty();
         toggleFeedback.onToggle(enabled);
-        LOGGER.debug("{} toggled {}", ModConstants.MOD_NAME, enabled ? "on" : "off");
+        LOGGER.debug("{} toggled {}", Constants.MOD_NAME, enabled ? "on" : "off");
         return enabled;
     }
 
@@ -177,7 +177,7 @@ public final class ItemDisplayControl {
             } finally {
                 CONFIG_IO_EXECUTOR.shutdown();
             }
-        }, ModConstants.MOD_ID + "-config-flush");
+        }, Constants.MOD_ID + "-config-flush");
 
         try {
             Runtime.getRuntime().addShutdownHook(hook);

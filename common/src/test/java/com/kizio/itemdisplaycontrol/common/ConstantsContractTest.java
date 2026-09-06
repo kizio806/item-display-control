@@ -8,9 +8,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 final class ConstantsContractTest {
 
     @Test
-    void shouldExposeStableModConstantsAndTranslationKeys() {
-        assertEquals("itemdisplaycontrol", ModConstants.MOD_ID);
-        assertEquals("Item Display Control", ModConstants.MOD_NAME);
+    void shouldExposeStableConstantsAndTranslationKeys() {
+        assertEquals("itemdisplaycontrol", Constants.MOD_ID);
+        assertEquals("Item Display Control", Constants.MOD_NAME);
 
         assertEquals("category.itemdisplaycontrol", TranslationKeys.CATEGORY);
         assertEquals("key.itemdisplaycontrol.toggle", TranslationKeys.KEY_TOGGLE);

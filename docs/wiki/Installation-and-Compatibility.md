@@ -9,10 +9,10 @@
 ## Current Compatibility
 
 - Active patch line: `1.21.x`
-- Fabric validated game versions: `1.21.11`
+- Fabric validated game versions: `1.21.9`, `1.21.10`, `1.21.11`
 - NeoForge validated game versions: `1.21.9`, `1.21.10`, `1.21.11`
-- Published shared Modrinth versions: `1.21.11`
-- Fabric range in metadata: `>=1.21.11 <1.21.12`
+- Published shared Modrinth versions: `1.21.9`, `1.21.10`, `1.21.11`
+- Fabric range in metadata: `>=1.21.9 <1.21.12`
 - NeoForge range in metadata: `[1.21,1.22)`
 
 If you try to run on a newer patch that is not mapped or validated yet, the build metadata checks are designed to block release until support is confirmed.

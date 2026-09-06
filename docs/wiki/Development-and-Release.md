@@ -46,7 +46,7 @@ Build commands:
 ```bash
 ./scripts/set-minecraft-version.sh \
   --base-minecraft 1.21.11 \
-  --fabric-supported-versions "1.21.11" \
+  --fabric-supported-versions "1.21.9,1.21.10,1.21.11" \
   --neoforge-supported-versions "1.21.9,1.21.10,1.21.11" \
   --mod-version 1.0.0
 ```

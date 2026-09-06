@@ -9,10 +9,12 @@ This `docs/` tree has two purposes:
 
 - [Wiki Home](wiki/Home.md)
 - [Wiki Source Guide](wiki/README.md)
-- [Code Style](Code-Style.md)
-- [Architecture Assessment](Architecture-Assessment.md)
-- [Release Guide](RELEASES.md)
-- [Modrinth Guide](MODRINTH.md)
+- [Architecture](architecture.md)
+- [Development](development.md)
+- [Installation](installation.md)
+- [Modrinth Guide](modrinth.md)
+- [Releases](releases.md)
+- [Troubleshooting](troubleshooting.md)
 
 ## Shared Repository Standard
 
