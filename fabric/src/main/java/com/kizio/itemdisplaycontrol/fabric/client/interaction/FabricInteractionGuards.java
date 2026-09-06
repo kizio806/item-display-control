@@ -101,7 +101,7 @@ public final class FabricInteractionGuards {
         placementBypassActive = true;
         try {
             InteractionResult result = client.gameMode.useItemOn(clientPlayer, hand, hitResult);
-            if (result instanceof InteractionResult.Success success) {
+            if (result instanceof InteractionResult.Success) {
                 player.swing(hand);
             }
         } finally {
