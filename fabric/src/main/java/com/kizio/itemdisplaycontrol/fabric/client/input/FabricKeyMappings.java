@@ -1,6 +1,6 @@
 package com.kizio.itemdisplaycontrol.fabric.client.input;
 
-import com.kizio.itemdisplaycontrol.common.ModConstants;
+import com.kizio.itemdisplaycontrol.common.Constants;
 import com.kizio.itemdisplaycontrol.common.i18n.TranslationKeys;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +16,7 @@ public final class FabricKeyMappings {
     private static final int DEFAULT_TOGGLE_KEY = GLFW.GLFW_KEY_J;
     private static final int DEFAULT_CONFIG_KEY = GLFW.GLFW_KEY_O;
     private static final KeyBinding.Category KEY_CATEGORY = KeyBinding.Category.create(
-            Identifier.of(ModConstants.MOD_ID, ModConstants.MOD_ID)
+            Identifier.of(Constants.MOD_ID, Constants.MOD_ID)
     );
     private static KeyBinding toggleKey;
     private static KeyBinding configKey;

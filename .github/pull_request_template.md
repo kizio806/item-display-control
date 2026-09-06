@@ -1,25 +1,32 @@
 ## Summary
 
-- 
-
 ## Type of change
 
-- [ ] Bug fix
-- [ ] Feature
-- [ ] Refactor
-- [ ] Build/CI
-- [ ] Documentation
+- [ ] 🐛 Bug fix
+- [ ] ✨ Feature / improvement
+- [ ] ♻️ Refactor (no behavior change)
+- [ ] 🏗️ Build / CI
+- [ ] 📝 Documentation
+
+## Related issues
+
+Closes #
+
+## What changed
+
+-
 
 ## Validation
 
-- [ ] `./gradlew clean buildAll publishReadyCheck`
-- [ ] Tested Fabric client run
-- [ ] Tested NeoForge client run
-- [ ] Dedicated server load verified (NeoForge)
+- [ ] `./gradlew clean buildAll strictCheck` passes locally
+- [ ] Tested on Fabric (client or game test server)
+- [ ] Tested on NeoForge (client or game test server)
+- [ ] Dedicated server safety verified (NeoForge)
 
 ## Checklist
 
-- [ ] Changelog updated (`CHANGELOG.md`) for user-visible changes
-- [ ] No client-only classes referenced from common server-safe entrypoints
-- [ ] Metadata (`fabric.mod.json`, `mods.toml`) is consistent
-- [ ] Multi-version metadata (`modrinth_game_versions`, range fields) remains valid
+- [ ] `CHANGELOG.md` updated for user-visible changes
+- [ ] No `TODO` / `FIXME` / wildcard imports added to source
+- [ ] Metadata (`fabric.mod.json`, `mods.toml`) is consistent with `gradle.properties`
+- [ ] Multi-version ranges (`fabric_game_versions`, `neoforge_game_versions`, `modrinth_game_versions`) remain valid
+- [ ] No client-only classes referenced from common or dedicated-server code

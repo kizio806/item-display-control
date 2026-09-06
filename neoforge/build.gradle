@@ -19,9 +19,24 @@ neoForge {
     mods {
         "${mod_id}" {
             sourceSet sourceSets.main
+            sourceSet sourceSets.test
+        }
+    }
+
+    runs {
+        gameTestServer {
+            server()
+            ideName = 'NeoForge GameTest Server'
+            gameDirectory = layout.buildDirectory.dir('gametest-server')
+            sourceSet = sourceSets.test
+            systemProperty 'neoforge.gameTestServer', 'true'
+            systemProperty 'neoforge.enableGameTest', 'true'
+            systemProperty 'neoforge.enabledGameTestNamespaces', mod_id
         }
     }
 }
+
+neoForge.addModdingDependenciesTo(sourceSets.test)
 
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.11.4')
@@ -42,6 +57,7 @@ def metadataProperties = [
         minecraft_version_range: minecraft_version_range,
         javafml_loader_range : javafml_loader_range,
         neoforge_loader_range : neoforge_loader_range,
+        data_pack_format   : data_pack_format,
         resource_pack_format: resource_pack_format
 ]
 
@@ -49,6 +65,7 @@ def commonIconFile = project(':common').layout.projectDirectory.file("src/main/r
 def productionModsTomlFile = layout.projectDirectory.file('src/main/resources/META-INF/neoforge.mods.toml').asFile
 
 processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     inputs.properties(metadataProperties)
 
     filesMatching('META-INF/neoforge.mods.toml') {
@@ -129,8 +146,22 @@ tasks.register('verifyDedicatedServerSafe') {
     }
 }
 
+tasks.register('headlessGameTest') {
+    group = 'verification'
+    description = 'Runs NeoForge GameTest server headlessly.'
+    dependsOn(tasks.named('runGameTestServer'))
+}
+
 jar {
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_id}" }
     }
+}
+
+tasks.named('check') {
+    dependsOn(tasks.named('headlessGameTest'))
+}
+
+tasks.named('sourcesJar') {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }

@@ -21,7 +21,7 @@ Item Display Control is a client-side quality-of-life mod for Minecraft that pre
 - Supported loaders: `Fabric`, `NeoForge`
 - Java: `21`
 - Current active Minecraft patch line: `1.21.x`
-- Fabric validated game versions: `1.21.11`
+- Fabric validated game versions: `1.21.9`, `1.21.10`, `1.21.11`
 - NeoForge validated game versions: `1.21.9`, `1.21.10`, `1.21.11`
 - Current mod version: `1.0.0`
 - Default keys: `J` for toggle, `O` for settings

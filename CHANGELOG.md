@@ -11,3 +11,4 @@ All notable changes to this project should be documented in this file.
 
 ### Changed
 - Standardized build, release, and publication metadata around the `jump-delay-fix` project structure.
+- Expanded validated game version matrix for both Fabric and NeoForge loaders to Minecraft 1.21.9 - 1.21.11.

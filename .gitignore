@@ -1,16 +1,7 @@
-# Compiled class file
+# Compiled class files
 *.class
-.gradle/
-build/
-common/build/
-fabric/build/
-neoforge/build/
-run/
-out/
-.idea/
-.vscode/
 
-# Log file
+# Log files
 *.log
 
 # BlueJ files
@@ -19,9 +10,7 @@ out/
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
 
-# Package Files #
-*.jar
-!gradle/wrapper/gradle-wrapper.jar
+# Package Files
 *.war
 *.nar
 *.ear
@@ -29,6 +18,33 @@ out/
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+# virtual machine crash logs
 hs_err_pid*
 replay_pid*
+
+# Gradle files
+.gradle/
+.gradle-user-home/
+build/
+bin/
+out/
+
+# IntelliJ IDEA / JetBrains
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VSCode
+.vscode/
+
+# Fabric / Minecraft
+*.lock
+fabric.mod.json.lock
+logs/
+run/
+.run/
+.cache/
+
+# OS files
+.DS_Store

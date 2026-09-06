@@ -1,7 +1,7 @@
 package com.kizio.itemdisplaycontrol.fabric.client;
 
 import com.kizio.itemdisplaycontrol.common.ItemDisplayControl;
-import com.kizio.itemdisplaycontrol.common.ModConstants;
+import com.kizio.itemdisplaycontrol.common.Constants;
 import com.kizio.itemdisplaycontrol.fabric.client.input.FabricKeyMappings;
 import com.kizio.itemdisplaycontrol.fabric.client.interaction.FabricInteractionGuards;
 import net.fabricmc.api.EnvType;
@@ -15,7 +15,7 @@ import java.nio.file.Path;
 @Environment(EnvType.CLIENT)
 public final class FabricClientBootstrap {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ModConstants.MOD_ID);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Constants.MOD_ID);
     private static boolean initialized;
 
     private FabricClientBootstrap() {
@@ -26,7 +26,7 @@ public final class FabricClientBootstrap {
             return;
         }
 
-        LOGGER.info("{} Fabric client bootstrap starting", ModConstants.MOD_NAME);
+        LOGGER.info("{} Fabric client bootstrap starting", Constants.MOD_NAME);
         FabricKeyMappings.register();
         FabricInteractionGuards.register();
 
@@ -36,7 +36,7 @@ public final class FabricClientBootstrap {
                 : Path.of("config");
 
         ItemDisplayControl.init(FabricStatusMessages::sendToggleStatus, configDir);
-        LOGGER.info("{} Fabric config directory: {}", ModConstants.MOD_NAME, configDir.toAbsolutePath());
+        LOGGER.info("{} Fabric config directory: {}", Constants.MOD_NAME, configDir.toAbsolutePath());
         FabricEvents.registerClientEvents();
         initialized = true;
     }

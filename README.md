@@ -35,7 +35,7 @@ Current version metadata is managed in `gradle.properties`:
 
 Current validated support line:
 
-- Fabric: `1.21.11`
+- Fabric: `1.21.9`, `1.21.10`, `1.21.11`
 - NeoForge: `1.21.9`, `1.21.10`, `1.21.11`
 
 ## Architecture
@@ -112,10 +112,10 @@ Required repository secrets:
 
 - Technical docs index: [docs/Home.md](docs/Home.md)
 - Wiki home: [docs/wiki/Home.md](docs/wiki/Home.md)
-- Code style: [docs/Code-Style.md](docs/Code-Style.md)
-- Architecture assessment: [docs/Architecture-Assessment.md](docs/Architecture-Assessment.md)
-- Release guide: [docs/RELEASES.md](docs/RELEASES.md)
-- Modrinth guide: [docs/MODRINTH.md](docs/MODRINTH.md)
+- Code style: [docs/development.md](docs/development.md)
+- Architecture assessment: [docs/architecture.md](docs/architecture.md)
+- Release guide: [docs/releases.md](docs/releases.md)
+- Modrinth guide: [docs/modrinth.md](docs/modrinth.md)
 - Changelog: [CHANGELOG.md](CHANGELOG.md)
 - Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 - Security: [SECURITY.md](SECURITY.md)
