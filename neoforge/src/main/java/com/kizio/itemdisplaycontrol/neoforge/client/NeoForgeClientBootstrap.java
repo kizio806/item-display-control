@@ -61,7 +61,7 @@ public final class NeoForgeClientBootstrap {
         if (NeoForgeKeyMappings.consumeConfigScreenPress()) {
             Minecraft client = Minecraft.getInstance();
             if (client != null) {
-                client.setScreen(new NeoForgeSettingsScreen(client.screen));
+                client.setScreenAndShow(new NeoForgeSettingsScreen(client.gui.screen()));
             }
         }
     }
