@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-fabric
           path: |
@@ -109,7 +109,7 @@ jobs:
 
       - name: Upload Fabric JAR
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: fabric-jar
           path: fabric/build/libs/*.jar
@@ -142,7 +142,7 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-reports-neoforge
           path: |
@@ -152,7 +152,7 @@ jobs:
 
       - name: Upload NeoForge JAR
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: neoforge-jar
           path: neoforge/build/libs/*.jar
