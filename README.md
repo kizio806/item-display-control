@@ -2,120 +2,81 @@
 
 [![CI](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml/badge.svg)](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/kizio806/item-display-control?sort=semver)](https://github.com/kizio806/item-display-control/releases)
-[![Modrinth](https://img.shields.io/badge/Modrinth-release%20ready-00AF5C?logo=modrinth)](docs/MODRINTH.md)
+[![Modrinth](https://img.shields.io/badge/Modrinth-release%20ready-00AF5C?logo=modrinth)](docs/modrinth.md)
 [![License](https://img.shields.io/github/license/kizio806/item-display-control)](LICENSE)
 
-Client-side Minecraft mod that blocks accidental item placement into item frames, glow item frames, armor stands, flower pots, decorated pots, chiseled bookshelves, shelf-like blocks, lecterns, jukeboxes, campfires, composters, respawn anchors, and other common insertion targets.
-
-The repository follows the same GitHub-facing structure used across `jump-delay-fix` and `event-hub`: explicit maintainer metadata, top-level technical docs, `docs/wiki` source pages, and release/publication guides kept inside the repo.
+Item Display Control is a client-side Minecraft mod designed to enhance your gameplay experience by preventing accidental item placements. It blocks unintended insertions into item frames, glow item frames, armor stands, flower pots, decorated pots, chiseled bookshelves, shelf-like blocks, lecterns, jukeboxes, campfires, composters, respawn anchors, and other common insertion targets.
 
 ## Highlights
 
-- Global on/off toggle
-- In-game settings screen
-- Per-target protection toggles
-- Global whitelist and blacklist item filters in the GUI
-- Sneak bypass for intentional interactions
-- Adjacent block placement bypass when you are holding a placeable block
-- Client-only implementation for Fabric and NeoForge
+- **Global Toggle:** Easily turn the mod on or off.
+- **In-Game Settings:** Intuitive GUI to manage preferences on the fly.
+- **Per-Target Protection:** Toggle protection for specific block types individually.
+- **Item Filters:** Configure global whitelist and blacklist item filters directly from the GUI.
+- **Smart Bypasses:** 
+  - Sneak to bypass protection for intentional interactions.
+  - Adjacent block placement bypass when holding a placeable block.
+- **Client-Side Only:** No server installation required. Works out of the box for Fabric and NeoForge.
 
-## Supported Platforms
+## Supported Platforms & Versions
 
-- Fabric Loader
-- NeoForge
+This branch (`main`) is currently targeting **Minecraft 26.2**.
 
-Current version metadata is managed in `gradle.properties`:
+- **Fabric Loader:** 0.18.4+ (Fabric API 0.159.0+26.2)
+- **NeoForge:** 26.2.0.79+
+- **Minecraft:** 26.2
 
-- `minecraft_version`: base compile target
-- `fabric_game_versions`: Fabric validated game versions
-- `neoforge_game_versions`: NeoForge validated game versions
-- `modrinth_game_versions`: shared Fabric/NeoForge versions published on Modrinth
-- `fabric_minecraft_version_range`: Fabric runtime support range
-- `minecraft_version_range`: NeoForge runtime support range
+*(See `gradle.properties` for the exact current version metadata.)*
 
-Current validated support line:
+## Installation
 
-- Fabric: `1.21.9`, `1.21.10`, `1.21.11`
-- NeoForge: `1.21.9`, `1.21.10`, `1.21.11`
+1. Download the latest release from the [Releases page](https://github.com/kizio806/item-display-control/releases) or [Modrinth](https://modrinth.com/mod/item-display-control).
+2. Ensure you have the correct mod loader installed (Fabric + Fabric API, or NeoForge) for Minecraft 26.2.
+3. Place the downloaded `.jar` file into your `.minecraft/mods` folder.
+4. Launch the game.
 
-## Architecture
+## Configuration
 
-Multi-project Gradle layout:
-
-- `common`: shared interaction rules, config, and target protection logic
-- `fabric`: Fabric bootstrap, keybinds, UI integration, and client adapters
-- `neoforge`: NeoForge bootstrap, keybinds, UI integration, and client adapters
-
-Design goals:
-
-- Shared behavior in `common`
-- Thin loader integration layers
-- No server-side requirement for client-only features
-
-## Config
-
-Runtime settings are saved to:
-
+Runtime settings are automatically saved to:
 ```text
 config/itemdisplaycontrol.properties
 ```
 
-Every protected target has its own boolean toggle, so you can disable only the categories you do not want.
-Whitelist and blacklist item filters are global across all enabled targets.
+You can configure the mod in-game using the settings screen (default key: `O`) or manually edit the properties file. Every protected target has its own toggle, and item filters apply globally across all enabled targets.
 
-## Build
+## Building from Source
 
-Requirements:
-
-- Java `21`
+**Requirements:**
+- Java 25
 - Gradle wrapper (`./gradlew`)
 
-Main commands:
-
+**Commands:**
 ```bash
+# Clean, build, and run strict checks
 ./gradlew --no-daemon clean buildAll strictCheck
+
+# Run release publication checks
 ./gradlew --no-daemon publishReadyCheck
 ```
 
-`publishReadyCheck` runs:
+## Architecture
 
-- Structure and contract validation (`validateStructure`)
-- SemVer validation (`mod_version`)
-- Minecraft version matrix validation
-- Common tests + coverage threshold verification
-- Fabric runtime and metadata checks
-- NeoForge production metadata checks
-- NeoForge dedicated-server safety checks
+The project uses a multi-project Gradle layout:
+- `common`: Contains shared interaction rules, configuration, and target protection logic.
+- `fabric`: Fabric bootstrap, keybinds, UI integration, and client adapters.
+- `neoforge`: NeoForge bootstrap, keybinds, UI integration, and client adapters.
 
-`strictCheck` runs the hard quality gate used by CI and release:
+## Project Documentation
 
-- `publishReadyCheck`
-- `validateSourceHygiene` (`src/main/java` + `src/test/java`):
-  no `//` or `/* */` comments, no `TODO`/`FIXME`/`XXX`, no wildcard imports
-- Java compilation with `-Xlint:all -Werror`
+- **Wiki:** [docs/wiki/Home.md](docs/wiki/Home.md)
+- **Development & Code Style:** [docs/development.md](docs/development.md)
+- **Architecture:** [docs/architecture.md](docs/architecture.md)
+- **Releases Guide:** [docs/releases.md](docs/releases.md)
+- **Modrinth Guide:** [docs/modrinth.md](docs/modrinth.md)
+- **Changelog:** [CHANGELOG.md](CHANGELOG.md)
+- **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Security:** [SECURITY.md](SECURITY.md)
 
-## Release Workflow
+## License
 
-Tag-based release (`vX.Y.Z`) is fully automated by `.github/workflows/release.yml`:
-
-1. Build + verify artifacts
-2. Generate release changelog from git history
-3. Publish GitHub Release with Fabric/NeoForge jars + SHA256 checksums
-4. Publish to Modrinth (if secrets are configured)
-
-Required repository secrets:
-
-- `MODRINTH_TOKEN`
-- `MODRINTH_PROJECT_ID`
-
-## Project Docs
-
-- Technical docs index: [docs/Home.md](docs/Home.md)
-- Wiki home: [docs/wiki/Home.md](docs/wiki/Home.md)
-- Code style: [docs/development.md](docs/development.md)
-- Architecture assessment: [docs/architecture.md](docs/architecture.md)
-- Release guide: [docs/releases.md](docs/releases.md)
-- Modrinth guide: [docs/modrinth.md](docs/modrinth.md)
-- Changelog: [CHANGELOG.md](CHANGELOG.md)
-- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Security: [SECURITY.md](SECURITY.md)
+This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
