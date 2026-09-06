@@ -13,7 +13,7 @@
 
 Requirements:
 
-- Java `21`
+- Java `25`
 - Gradle wrapper
 
 Build commands:
@@ -38,17 +38,17 @@ Build commands:
 1. Probe candidate Minecraft versions:
 
 ```bash
-./scripts/probe-minecraft-versions.sh --versions "1.21.9,1.21.10,1.21.11,1.21.12"
+./scripts/probe-minecraft-versions.sh --versions "26.2"
 ```
 
 2. Update metadata consistently:
 
 ```bash
 ./scripts/set-minecraft-version.sh \
-  --base-minecraft 1.21.11 \
-  --fabric-supported-versions "1.21.9,1.21.10,1.21.11" \
-  --neoforge-supported-versions "1.21.9,1.21.10,1.21.11" \
-  --mod-version 1.0.0
+  --base-minecraft 26.2 \
+  --fabric-supported-versions "26.2" \
+  --neoforge-supported-versions "26.2" \
+  --mod-version 1.2.0
 ```
 
 3. Verify:

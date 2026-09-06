@@ -3,17 +3,17 @@
 ## Requirements
 
 - Minecraft Java Edition
-- Java `21`
+- Java `25`
 - `Fabric Loader` plus Fabric API, or `NeoForge`
 
 ## Current Compatibility
 
-- Active patch line: `1.21.x`
-- Fabric validated game versions: `1.21.9`, `1.21.10`, `1.21.11`
-- NeoForge validated game versions: `1.21.9`, `1.21.10`, `1.21.11`
-- Published shared Modrinth versions: `1.21.9`, `1.21.10`, `1.21.11`
-- Fabric range in metadata: `>=1.21.9 <1.21.12`
-- NeoForge range in metadata: `[1.21,1.22)`
+- Active patch line: `26.2`
+- Fabric validated game versions: `26.2`
+- NeoForge validated game versions: `26.2`
+- Published shared Modrinth versions: `26.2`
+- Fabric range in metadata: `>=26.2 <26.3`
+- NeoForge range in metadata: `[26.2,26.3)`
 
 If you try to run on a newer patch that is not mapped or validated yet, the build metadata checks are designed to block release until support is confirmed.
 
@@ -54,4 +54,4 @@ The strategy is enforced by Gradle checks:
 - Using the wrong loader jar for your instance
 - Missing required loader or Fabric API dependency
 - Using an unsupported Minecraft patch version
-- Running with an outdated Java runtime instead of Java 21
+- Running with an outdated Java runtime instead of Java 25
