@@ -110,13 +110,13 @@ public final class NeoForgeInteractionGuards {
 
     private static BlockHitResult createPlacementHitResult(HitResult hitResult) {
         return switch (hitResult.getType()) {
-            case BLOCK -> createPlacementHitResultFromBlockHit((BlockHitResult) hitResult);
-            case ENTITY -> createPlacementHitResultFromEntityHit((EntityHitResult) hitResult);
+            case BLOCK -> createPlacementHitResultFromBlock((BlockHitResult) hitResult);
+            case ENTITY -> createPlacementHitResultFromEntity((EntityHitResult) hitResult);
             default -> null;
         };
     }
 
-    private static BlockHitResult createPlacementHitResultFromBlockHit(BlockHitResult originalHitResult) {
+    private static BlockHitResult createPlacementHitResultFromBlock(BlockHitResult originalHitResult) {
         Direction clickedSide = originalHitResult.getDirection();
         BlockPos placementPos = originalHitResult.getBlockPos().relative(clickedSide);
         Direction placementSide = clickedSide.getOpposite();
@@ -128,7 +128,7 @@ public final class NeoForgeInteractionGuards {
         );
     }
 
-    private static BlockHitResult createPlacementHitResultFromEntityHit(EntityHitResult hitResult) {
+    private static BlockHitResult createPlacementHitResultFromEntity(EntityHitResult hitResult) {
         if (!(hitResult.getEntity() instanceof ItemFrame itemFrame)) {
             return null;
         }
