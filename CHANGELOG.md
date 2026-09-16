@@ -2,6 +2,22 @@
 
 All notable changes to this project should be documented in this file.
 
+## 1.3.0
+
+### Added
+- Updated mod support for Minecraft 26.3 for Fabric and NeoForge.
+
+### Changed
+- Replaced `InputConstants.Type.KEYSYM` with `KEYBOARD`.
+- Replaced `GLFW` keycodes with `SDLKeycode` API.
+- Updated `player.swing()` calls to support new API changes.
+- Updated NeoForge ModDevGradle to `2.0.147` to fix compilation issues.
+
+### Compatibility
+- Minecraft: 26.3
+- Fabric: Loader 0.18.4+ / Fabric API 0.160.6+26.3
+- NeoForge: 26.3.0.3-beta+
+
 ## 1.2.0
 
 ### Added
