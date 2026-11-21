@@ -1,6 +1,8 @@
 # Item Display Control
 
 [![CI](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml/badge.svg)](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml)
+[![SonarCloud Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=kizio806_item-display-control&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=kizio806_item-display-control)
+[![Codecov Coverage](https://codecov.io/gh/kizio806/item-display-control/graph/badge.svg)](https://codecov.io/gh/kizio806/item-display-control)
 [![Release](https://img.shields.io/github/v/release/kizio806/item-display-control?sort=semver)](https://github.com/kizio806/item-display-control/releases)
 [![Modrinth](https://img.shields.io/badge/Modrinth-release%20ready-00AF5C?logo=modrinth)](docs/modrinth.md)
 [![Java Version](https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk)](gradle.properties)

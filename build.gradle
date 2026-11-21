@@ -1,5 +1,7 @@
 plugins {
     alias(libs.plugins.spotless)
+    alias(libs.plugins.sonarqube)
+    id 'jacoco'
 }
 
 allprojects {
@@ -30,6 +32,14 @@ spotless {
     }
 }
 
+sonar {
+    properties {
+        property 'sonar.projectKey', 'kizio806_item-display-control'
+        property 'sonar.organization', 'kizio806'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+    }
+}
+
 ext.sharedVersions = [
         minecraft: providers.gradleProperty('minecraft_version').get(),
         mappings : providers.gradleProperty('yarn_mappings').get(),
@@ -39,6 +49,13 @@ ext.sharedVersions = [
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+    sonar {
+        properties {
+            property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/build/reports/jacoco/test/jacocoTestReport.xml"
+        }
+    }
 
     java {
         toolchain.languageVersion = JavaLanguageVersion.of(java_version.toInteger())
@@ -53,6 +70,14 @@ subprojects {
 
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
+        finalizedBy('jacocoTestReport')
+    }
+
+    tasks.withType(JacocoReport).configureEach {
+        reports {
+            xml.required = true
+            html.required = true
+        }
     }
 
     tasks.withType(AbstractArchiveTask).configureEach {
