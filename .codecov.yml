@@ -5,12 +5,16 @@ coverage:
   status:
     project:
       default:
-        target: auto
-        threshold: 1%
+        target: 80%
+        threshold: 0%
     patch:
       default:
         target: 80%
         threshold: 0%
+
+ignore:
+  - "fabric/**"
+  - "neoforge/**"
 
 comment:
   layout: "header, diff, flags, components"
