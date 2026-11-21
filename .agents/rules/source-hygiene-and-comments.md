@@ -1,7 +1,7 @@
 # Source Hygiene and Comment Policy
 
 ## Purpose
-In the `jump-delay-fix` codebase, code must maintain high readability and clean architecture. Automated CI checks fail immediately if marker tags or wildcard imports are introduced into Java sources. Meaningful explanatory comments are permitted, but redundant or trivial comments are forbidden. This rule ensures all code remains readable, clean, and passes the strict hygiene gates.
+In the `item-display-control` codebase, code must maintain high readability and clean architecture. Automated CI checks fail immediately if marker tags or wildcard imports are introduced into Java sources. Meaningful explanatory comments are permitted, but redundant or trivial comments are forbidden. This rule ensures all code remains readable, clean, and passes the strict hygiene gates.
 
 ## Standard
 - **Meaningful Comments Only:** Explanatory comments are permitted when clarifying complex or non-obvious algorithms, timing heuristics, or cross-loader subtleties. Redundant comments that merely restate self-evident code (e.g., `// check if grounded` before `if (isGrounded)`) are prohibited.
