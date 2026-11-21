@@ -77,6 +77,9 @@ The project uses a multi-project Gradle layout:
 - **Modrinth Guide:** [docs/modrinth.md](docs/modrinth.md)
 - **Changelog:** [CHANGELOG.md](CHANGELOG.md)
 - **Contributing:** [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Code of Conduct:** [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- **Support:** [SUPPORT.md](SUPPORT.md)
+- **Roadmap:** [ROADMAP.md](ROADMAP.md)
 - **Security:** [SECURITY.md](SECURITY.md)
 
 ## License
