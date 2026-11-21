@@ -19,6 +19,7 @@ This document tracks current accomplishments, active development goals, and futu
 - [ ] **Enhanced Filter Presets**: Built-in default filter profiles (e.g. Builder, Redstone, Survival).
 - [ ] **Config GUI Improvements**: Searchable item list with icon rendering inside the in-game settings menu.
 
-### Phase 3: Minecraft Modernization (v1.4.0)
+### Phase 3: Minecraft Modernization & Synchronized Architecture (v2.0.0)
+- [x] **Unified Global Versioning Standard:** Synchronized SemVer `2.0.0` architecture with `+mc<RANGE>` build metadata across all active branches.
 - [ ] **Upstream Release Tracking**: Rapid alignment with new Minecraft snapshots and experimental features.
 - [ ] **Automated Headless Interaction Tests**: Headless client smoke testing to verify click interception across loader updates.
