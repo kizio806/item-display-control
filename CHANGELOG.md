@@ -2,6 +2,13 @@
 
 All notable changes to this project should be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- **Unified Global Versioning Standard**: Migrated versioning architecture to synchronized Semantic Versioning with Minecraft compatibility build metadata (`2.0.0+mc26.3.x`).
+- **Synchronized Support Branch Parity**: All active compatibility lines (`main`, `support/26.2.x`, `support/26.1.x`, `support/1.21.9-1.21.11`) now share the global base version `2.0.0`.
+- **Deterministic Release Artifact Naming**: Standardized multi-loader release JAR outputs to `item-display-control-<BASE_VERSION>-<MC_METADATA>-fabric.jar` and `item-display-control-<BASE_VERSION>-<MC_METADATA>-neoforge.jar`.
+
 ## 1.3.0
 
 ### Added

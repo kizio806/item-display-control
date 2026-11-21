@@ -21,6 +21,7 @@ Future AI agents working in this repository must operate as **experienced senior
 - **Do NOT add trivial or redundant comments:** Meaningful explanatory comments are permitted when clarifying non-obvious algorithms or contracts, but redundant comments that merely restate the code, `TODO`/`FIXME`/`XXX` tags, and wildcard imports are prohibited.
 - **Do NOT suppress warnings:** `@SuppressWarnings` and warning-silencing annotations of any kind are strictly forbidden. Resolve deprecations, type mismatches, and linter warnings at the source.
 - **Do NOT bypass constructor dependency injection with global static state:** Domain logic must receive dependencies via constructor injection rather than querying static singleton accessors.
+- **Do NOT introduce independent branch versioning or bypass the release standard:** Every active support branch must follow the synchronized base version policy defined in [docs/releases.md](docs/releases.md) and [.agents/rules/versioning-and-releases.md](.agents/rules/versioning-and-releases.md).
 
 ---
 
