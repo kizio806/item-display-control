@@ -5,6 +5,13 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+ROOT_CLASS_FILES=$(find . -maxdepth 1 -name "*.class" || true)
+if [[ -n "$ROOT_CLASS_FILES" ]]; then
+    echo "Disallowed stray .class files detected in root directory:"
+    echo "$ROOT_CLASS_FILES"
+    exit 1
+fi
+
 EMPTY_DIRS=$(find common/src/main fabric/src/main neoforge/src/main -type d -empty | sort || true)
 
 if [[ -n "$EMPTY_DIRS" ]]; then
@@ -30,6 +37,7 @@ if [[ -n "$FORBIDDEN_ACCESSORS" ]]; then
 fi
 
 required_docs=(
+    "AGENTS.md"
     "CHANGELOG.md"
     "CONTRIBUTING.md"
     "SECURITY.md"
