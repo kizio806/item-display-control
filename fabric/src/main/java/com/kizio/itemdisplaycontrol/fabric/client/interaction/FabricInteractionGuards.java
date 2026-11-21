@@ -154,24 +154,15 @@ public final class FabricInteractionGuards {
 
     private static ProtectionTarget resolveBlockTarget(Block block) {
         Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
-        if (blockId == null) {
-            return null;
-        }
-
         return ProtectionTargetResolver.resolveBlockTarget(blockId.getNamespace(), blockId.getPath());
     }
 
     private static ProtectionTarget resolveEntityTarget(Entity entity) {
         Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
-        if (entityId == null) {
-            return null;
-        }
-
         return ProtectionTargetResolver.resolveEntityTarget(entityId.getNamespace(), entityId.getPath());
     }
 
     private static String resolveItemId(Item item) {
-        Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
-        return itemId != null ? itemId.toString() : null;
+        return BuiltInRegistries.ITEM.getKey(item).toString();
     }
 }

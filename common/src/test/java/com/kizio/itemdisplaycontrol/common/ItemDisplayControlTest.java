@@ -15,6 +15,7 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,8 +29,10 @@ final class ItemDisplayControlTest {
     @Test
     @Order(1)
     void onClientTickBeforeInitializationShouldBeNoOp() {
-        ItemDisplayControl.onClientTick();
-        ItemDisplayControl.flushPendingConfiguration();
+        assertDoesNotThrow(() -> {
+            ItemDisplayControl.onClientTick();
+            ItemDisplayControl.flushPendingConfiguration();
+        });
     }
 
     @Test

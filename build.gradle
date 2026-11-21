@@ -37,6 +37,8 @@ sonar {
         property 'sonar.projectKey', 'kizio806_item-display-control'
         property 'sonar.organization', 'kizio806'
         property 'sonar.host.url', 'https://sonarcloud.io'
+        property 'sonar.coverage.exclusions', 'fabric/**,neoforge/**,**/fabric/**,**/neoforge/**'
+        property 'sonar.cpd.exclusions', 'fabric/**,neoforge/**,**/fabric/**,**/neoforge/**'
     }
 }
 
@@ -53,7 +55,12 @@ subprojects {
 
     sonar {
         properties {
-            property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/build/reports/jacoco/test/jacocoTestReport.xml"
+            if (project.name == 'common') {
+                property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/build/reports/jacoco/test/jacocoTestReport.xml"
+            } else {
+                property 'sonar.coverage.exclusions', '**/*'
+                property 'sonar.cpd.exclusions', '**/*'
+            }
         }
     }
 
@@ -240,19 +247,24 @@ tasks.register('verifyMinecraftVersionMatrix') {
 
         def fabricRange = fabric_minecraft_version_range.toString().trim()
         def expectedFabricLowerBound = ">=" + minFabricVersion.text
-        def expectedFabricUpperBound = "<${baseVersion.major}.${baseVersion.minor + 1}"
-        if (!fabricRange.contains(expectedFabricLowerBound) || !fabricRange.contains(expectedFabricUpperBound)) {
+        def expectedFabricPatchUpperBound = "<" + incrementPatch(maxFabricVersion)
+        def expectedFabricMinorUpperBound = "<${baseVersion.major}.${baseVersion.minor + 1}"
+        if (!fabricRange.contains(expectedFabricLowerBound) || (!fabricRange.contains(expectedFabricPatchUpperBound) && !fabricRange.contains(expectedFabricMinorUpperBound))) {
             throw new GradleException(
                     "fabric_minecraft_version_range '${fabricRange}' must include " +
-                            "'${expectedFabricLowerBound}' and '${expectedFabricUpperBound}'."
+                            "'${expectedFabricLowerBound}' and ('${expectedFabricPatchUpperBound}' or '${expectedFabricMinorUpperBound}')."
             )
         }
 
         def neoRange = minecraft_version_range.toString().trim()
-        def expectedNeoRange = "[${baseVersion.major}.${baseVersion.minor},${baseVersion.major}.${baseVersion.minor + 1})"
-        if (neoRange != expectedNeoRange) {
+        def minNeoVersion = neoforgeSupported.first()
+        def maxNeoVersion = neoforgeSupported.last()
+        def expectedPatchNeoRange = "[${minNeoVersion.text},${incrementPatch(maxNeoVersion)})"
+        def expectedMinorNeoRange = "[${baseVersion.major}.${baseVersion.minor},${baseVersion.major}.${baseVersion.minor + 1})"
+
+        if (neoRange != expectedPatchNeoRange && neoRange != expectedMinorNeoRange) {
             throw new GradleException(
-                    "minecraft_version_range must equal '${expectedNeoRange}' for one-line support, got '${neoRange}'."
+                    "minecraft_version_range must equal '${expectedPatchNeoRange}' or '${expectedMinorNeoRange}', got '${neoRange}'."
             )
         }
     }
