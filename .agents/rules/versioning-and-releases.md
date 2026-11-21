@@ -10,7 +10,7 @@ When performing version-related or cross-branch work, every agent MUST adhere to
 
 1. **Read Authoritative Policy First**: Always read [docs/releases.md](../../docs/releases.md) before modifying any project version metadata or build configuration.
 2. **Identify All Active Branches**: Inspect all active compatibility branches (`main`, `support/26.2.x`, `support/26.1.x`, `support/1.21.9-1.21.11`).
-3. **Determine Global Base Version**: Determine the single authoritative base version (`MAJOR.MINOR.PATCH`, currently `2.0.0`).
+3. **Determine Global Base Version**: Determine the single authoritative base version (`MAJOR.MINOR.PATCH`, currently `1.0.0`).
 4. **Apply Uniform Base Version**: Apply the exact same base version across all active branches without exception.
 5. **Adapt Implementation Per Line**: Adapt code changes, mappings, and loader APIs to each supported Minecraft line while maintaining behavioral parity.
 6. **Synchronize Tests & Metadata**: Update unit tests, metadata contract tests, and `gradle.properties` consistently on every active branch.
