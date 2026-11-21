@@ -3,6 +3,8 @@
 [![CI](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml/badge.svg)](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/kizio806/item-display-control?sort=semver)](https://github.com/kizio806/item-display-control/releases)
 [![Modrinth](https://img.shields.io/badge/Modrinth-release%20ready-00AF5C?logo=modrinth)](docs/modrinth.md)
+[![Java Version](https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk)](gradle.properties)
+[![Minecraft Version](https://img.shields.io/badge/Minecraft-26.3-brightgreen?logo=minecraft)](gradle.properties)
 [![License](https://img.shields.io/github/license/kizio806/item-display-control)](LICENSE)
 
 Item Display Control is a client-side Minecraft mod designed to enhance your gameplay experience by preventing accidental item placements. It blocks unintended insertions into item frames, glow item frames, armor stands, flower pots, decorated pots, chiseled bookshelves, shelf-like blocks, lecterns, jukeboxes, campfires, composters, respawn anchors, and other common insertion targets.
@@ -20,18 +22,18 @@ Item Display Control is a client-side Minecraft mod designed to enhance your gam
 
 ## Supported Platforms & Versions
 
-This branch (`main`) is currently targeting **Minecraft 26.2**.
+This branch (`main`) is currently targeting **Minecraft 26.3**.
 
-- **Fabric Loader:** 0.18.4+ (Fabric API 0.159.0+26.2)
-- **NeoForge:** 26.2.0.79+
-- **Minecraft:** 26.2
+- **Fabric Loader:** 0.18.4+ (Fabric API 0.160.6+26.3)
+- **NeoForge:** 26.3.0.3-beta+
+- **Minecraft:** 26.3
 
 *(See `gradle.properties` for the exact current version metadata.)*
 
 ## Installation
 
 1. Download the latest release from the [Releases page](https://github.com/kizio806/item-display-control/releases) or [Modrinth](https://modrinth.com/mod/item-display-control).
-2. Ensure you have the correct mod loader installed (Fabric + Fabric API, or NeoForge) for Minecraft 26.2.
+2. Ensure you have the correct mod loader installed (Fabric + Fabric API, or NeoForge) for Minecraft 26.3.
 3. Place the downloaded `.jar` file into your `.minecraft/mods` folder.
 4. Launch the game.
 
