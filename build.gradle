@@ -1,3 +1,9 @@
+plugins {
+    alias(libs.plugins.spotless)
+    alias(libs.plugins.sonarqube)
+    id 'jacoco'
+}
+
 allprojects {
     group = mod_group
     version = mod_version
@@ -17,6 +23,23 @@ allprojects {
     }
 }
 
+spotless {
+    java {
+        target 'common/src/*/java/**/*.java', 'fabric/src/*/java/**/*.java', 'neoforge/src/*/java/**/*.java'
+        trimTrailingWhitespace()
+        endWithNewline()
+        leadingTabsToSpaces(4)
+    }
+}
+
+sonar {
+    properties {
+        property 'sonar.projectKey', 'kizio806_item-display-control'
+        property 'sonar.organization', 'kizio806'
+        property 'sonar.host.url', 'https://sonarcloud.io'
+    }
+}
+
 ext.sharedVersions = [
         minecraft: providers.gradleProperty('minecraft_version').get(),
         mappings : providers.gradleProperty('yarn_mappings').get(),
@@ -26,6 +49,13 @@ ext.sharedVersions = [
 
 subprojects {
     apply plugin: 'java'
+    apply plugin: 'jacoco'
+
+    sonar {
+        properties {
+            property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/build/reports/jacoco/test/jacocoTestReport.xml"
+        }
+    }
 
     java {
         toolchain.languageVersion = JavaLanguageVersion.of(java_version.toInteger())
@@ -40,6 +70,14 @@ subprojects {
 
     tasks.withType(Test).configureEach {
         useJUnitPlatform()
+        finalizedBy('jacocoTestReport')
+    }
+
+    tasks.withType(JacocoReport).configureEach {
+        reports {
+            xml.required = true
+            html.required = true
+        }
     }
 
     tasks.withType(AbstractArchiveTask).configureEach {
@@ -68,6 +106,35 @@ tasks.register('verifySemverVersion') {
 
         if (!(versionText ==~ semverPattern)) {
             throw new GradleException("Version '${versionText}' is not valid SemVer.")
+        }
+
+        if (versionText.contains('+')) {
+            def parts = versionText.split('\\+')
+            def metadata = parts[1]
+            if (!metadata.startsWith('mc')) {
+                throw new GradleException("Build metadata '${metadata}' must follow '+mc<RANGE>' format.")
+            }
+        }
+    }
+}
+
+tasks.register('verifyReleaseArtifacts') {
+    group = 'verification'
+    description = 'Validates that Fabric and NeoForge jars exist with standard release naming.'
+    dependsOn(':fabric:assemble', ':neoforge:assemble')
+    doLast {
+        def baseVersion = resolvedModVersion.split('\\+')[0]
+        def mcMetadata = resolvedModVersion.contains('+') ? resolvedModVersion.split('\\+')[1] : "mc${minecraft_version}"
+        def artifactBaseName = findProperty('artifact_base_name') ?: 'item-display-control'
+
+        def fabricJar = file("fabric/build/libs/${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar")
+        def neoJar = file("neoforge/build/libs/${artifactBaseName}-${baseVersion}-${mcMetadata}-neoforge.jar")
+
+        if (!fabricJar.exists()) {
+            throw new GradleException("Expected Fabric release artifact does not exist: ${fabricJar}")
+        }
+        if (!neoJar.exists()) {
+            throw new GradleException("Expected NeoForge release artifact does not exist: ${neoJar}")
         }
     }
 }
@@ -198,6 +265,7 @@ tasks.register('publishReadyCheck') {
             'validateStructure',
             'verifySemverVersion',
             'verifyMinecraftVersionMatrix',
+            'verifyReleaseArtifacts',
             ':common:test',
             ':fabric:test',
             ':fabric:verifyRuntimeDependencyCompatibility',
@@ -223,5 +291,5 @@ tasks.register('validateSourceHygiene', Exec) {
 tasks.register('strictCheck') {
     group = 'verification'
     description = 'Runs full hard quality gate checks.'
-    dependsOn('publishReadyCheck', 'validateSourceHygiene')
+    dependsOn('publishReadyCheck', 'validateSourceHygiene', 'spotlessCheck')
 }

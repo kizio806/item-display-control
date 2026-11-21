@@ -20,10 +20,10 @@ Item Display Control is a client-side quality-of-life mod for Minecraft that pre
 - Mod ID: `itemdisplaycontrol`
 - Supported loaders: `Fabric`, `NeoForge`
 - Java: `25`
-- Current active Minecraft patch line: `26.2`
-- Fabric validated game versions: `26.2`
-- NeoForge validated game versions: `26.2`
-- Current mod version: `1.2.0`
+- Current active Minecraft patch line: `26.3`
+- Fabric validated game versions: `26.3`
+- NeoForge validated game versions: `26.3`
+- Current mod version: `1.0.0`
 - Default keys: `J` for toggle, `O` for settings
 
 Version metadata is managed in `gradle.properties` and validated during build by `publishReadyCheck`.
