@@ -15,10 +15,10 @@ MAJOR.MINOR.PATCH+mc<MINECRAFT_RANGE>
 ```
 
 Examples:
-- `2.0.0+mc26.3.x` (active on `main`)
-- `2.0.0+mc26.2.x` (active on `support/26.2.x`)
-- `2.0.0+mc26.1.x` (active on `support/26.1.x`)
-- `2.0.0+mc1.21.9-1.21.11` (active on `support/1.21.9-1.21.11`)
+- `1.0.0+mc26.3.x` (active on `main`)
+- `1.0.0+mc26.2.x` (active on `support/26.2.x`)
+- `1.0.0+mc26.1.x` (active on `support/26.1.x`)
+- `1.0.0+mc1.21.9-1.21.11` (active on `support/1.21.9-1.21.11`)
 
 ### Increment Semantics
 
@@ -37,16 +37,16 @@ The defining principle of this versioning architecture is **global base version 
 > **Every active support branch must use the exact same base project version.**
 
 ```text
-main:                    2.0.0+mc26.3.x
-support/26.2.x:          2.0.0+mc26.2.x
-support/26.1.x:          2.0.0+mc26.1.x
-support/1.21.9-1.21.11:  2.0.0+mc1.21.9-1.21.11
+main:                    1.0.0+mc26.3.x
+support/26.2.x:          1.0.0+mc26.2.x
+support/26.1.x:          1.0.0+mc26.1.x
+support/1.21.9-1.21.11:  1.0.0+mc1.21.9-1.21.11
 ```
 
 ### Backport and Parity Mandate
 
 1. When a new feature, bug fix, or security update is introduced on `main`, the change must be adapted and backported across all active support branches (`support/26.2.x`, `support/26.1.x`, `support/1.21.9-1.21.11`).
-2. When a version increment occurs (e.g., from `2.0.0` to `2.0.1` or `2.1.0`), the increment is applied to **all** active branches in lockstep.
+2. When a version increment occurs (e.g., from `1.0.0` to `1.0.1` or `1.1.0`), the increment is applied to **all** active branches in lockstep.
 3. **Never** independently increment the base version on a single branch.
 4. **Never** publish a higher base version for one active branch while leaving another active branch on an older base version.
 5. If a platform-specific API difference prevents equivalent implementation on an older Minecraft line, stop and document the technical limitation rather than silently creating version divergence.
@@ -79,12 +79,12 @@ Every active Minecraft compatibility line produces **EXACTLY TWO production arti
 2. **NeoForge JAR**: `item-display-control-<BASE_VERSION>-<MC_METADATA>-neoforge.jar`
 
 Examples on `main`:
-- `item-display-control-2.0.0-mc26.3.x-fabric.jar`
-- `item-display-control-2.0.0-mc26.3.x-neoforge.jar`
+- `item-display-control-1.0.0-mc26.3.x-fabric.jar`
+- `item-display-control-1.0.0-mc26.3.x-neoforge.jar`
 
 Examples on `support/1.21.9-1.21.11`:
-- `item-display-control-2.0.0-mc1.21.9-1.21.11-fabric.jar`
-- `item-display-control-2.0.0-mc1.21.9-1.21.11-neoforge.jar`
+- `item-display-control-1.0.0-mc1.21.9-1.21.11-fabric.jar`
+- `item-display-control-1.0.0-mc1.21.9-1.21.11-neoforge.jar`
 
 ### Multi-Version JAR Invariant
 A single JAR covers its entire compatibility range:
@@ -104,10 +104,10 @@ v<BASE_VERSION>+mc<MINECRAFT_RANGE>
 ```
 
 Examples:
-- `v2.0.0+mc26.3.x`
-- `v2.0.0+mc26.2.x`
-- `v2.0.0+mc26.1.x`
-- `v2.0.0+mc1.21.9-1.21.11`
+- `v1.0.0+mc26.3.x`
+- `v1.0.0+mc26.2.x`
+- `v1.0.0+mc26.1.x`
+- `v1.0.0+mc1.21.9-1.21.11`
 
 ### GitHub Release Title Convention
 
@@ -116,10 +116,10 @@ v<BASE_VERSION> — Minecraft <MINECRAFT_RANGE>
 ```
 
 Examples:
-- `v2.0.0 — Minecraft 26.3.x`
-- `v2.0.0 — Minecraft 26.2.x`
-- `v2.0.0 — Minecraft 26.1.x`
-- `v2.0.0 — Minecraft 1.21.9–1.21.11`
+- `v1.0.0 — Minecraft 26.3.x`
+- `v1.0.0 — Minecraft 26.2.x`
+- `v1.0.0 — Minecraft 26.1.x`
+- `v1.0.0 — Minecraft 1.21.9–1.21.11`
 
 Each GitHub Release contains **only** the artifacts built for its compatibility line:
 - 1 Fabric JAR
@@ -133,8 +133,8 @@ Each GitHub Release contains **only** the artifacts built for its compatibility 
 To prevent launcher confusion and preserve clean update channels:
 
 1. **Independent Loader Entries**: Every release publishes separate entries for Fabric and NeoForge.
-   - Fabric Version ID: `<BASE_VERSION>+mc<MINECRAFT_RANGE>.fabric` (e.g. `2.0.0+mc26.3.x.fabric`)
-   - NeoForge Version ID: `<BASE_VERSION>+mc<MINECRAFT_RANGE>.neoforge` (e.g. `2.0.0+mc26.3.x.neoforge`)
+   - Fabric Version ID: `<BASE_VERSION>+mc<MINECRAFT_RANGE>.fabric` (e.g. `1.0.0+mc26.3.x.fabric`)
+   - NeoForge Version ID: `<BASE_VERSION>+mc<MINECRAFT_RANGE>.neoforge` (e.g. `1.0.0+mc26.3.x.neoforge`)
 2. **Platform Game Versions**: The published version lists all Minecraft patch versions verified by the line (e.g. `['1.21.9', '1.21.10', '1.21.11']`).
 3. **Prohibited Patterns**:
    - Never combine Fabric and NeoForge into a single release entry.

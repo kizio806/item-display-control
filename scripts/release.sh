@@ -86,8 +86,8 @@ if [[ ! -f "CHANGELOG.md" ]]; then
     exit 1
 fi
 
-if ! grep -q -E "^## (\[?${MOD_VERSION}\]?|\[Unreleased\])" CHANGELOG.md; then
-    echo "Error: CHANGELOG.md does not contain an entry for version '${MOD_VERSION}' or '[Unreleased]'."
+if ! grep -q -E "^## (\[?${MOD_VERSION}\]?|\[?${BASE_VERSION}\]?|\[Unreleased\])" CHANGELOG.md; then
+    echo "Error: CHANGELOG.md does not contain an entry for version '${MOD_VERSION}', '${BASE_VERSION}', or '[Unreleased]'."
     exit 1
 fi
 

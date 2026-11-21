@@ -45,10 +45,10 @@ Build commands:
 
 ```bash
 ./scripts/set-minecraft-version.sh \
-  --base-minecraft 26.2 \
-  --fabric-supported-versions "26.2" \
-  --neoforge-supported-versions "26.2" \
-  --mod-version 1.2.0
+  --base-minecraft 26.3 \
+  --fabric-supported-versions "26.3" \
+  --neoforge-supported-versions "26.3" \
+  --mod-version 1.0.0
 ```
 
 3. Verify:

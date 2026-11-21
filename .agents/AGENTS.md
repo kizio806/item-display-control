@@ -9,5 +9,5 @@ See the root [AGENTS.md](../AGENTS.md) for full architectural specifications, bo
 - `skills/` — Actionable procedures for version porting, bug fixing, release verification, and guard tuning.
 - `workflows/` — Step-by-step processes for features, fixes, and release readiness.
 - `rules/` — Strict engineering constraints (multi-loader boundaries, source hygiene, zero wildcard imports).
-  - `rules/versioning-and-releases.md` — Authoritative synchronized SemVer 2.0.0+mc<RANGE> release policy and multi-branch parity mandates.
+  - `rules/versioning-and-releases.md` — Authoritative synchronized SemVer 1.0.0+mc<RANGE> release policy and multi-branch parity mandates.
 - `context/` — Architectural blueprints, compatibility matrix, and technology stack.
