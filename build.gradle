@@ -1,3 +1,7 @@
+plugins {
+    alias(libs.plugins.spotless)
+}
+
 allprojects {
     group = mod_group
     version = mod_version
@@ -14,6 +18,15 @@ allprojects {
         maven {
             url = 'https://maven.neoforged.net/releases/'
         }
+    }
+}
+
+spotless {
+    java {
+        target 'common/src/*/java/**/*.java', 'fabric/src/*/java/**/*.java', 'neoforge/src/*/java/**/*.java'
+        trimTrailingWhitespace()
+        endWithNewline()
+        leadingTabsToSpaces(4)
     }
 }
 
@@ -224,5 +237,5 @@ tasks.register('validateSourceHygiene', Exec) {
 tasks.register('strictCheck') {
     group = 'verification'
     description = 'Runs full hard quality gate checks.'
-    dependsOn('publishReadyCheck', 'validateSourceHygiene')
+    dependsOn('publishReadyCheck', 'validateSourceHygiene', 'spotlessCheck')
 }

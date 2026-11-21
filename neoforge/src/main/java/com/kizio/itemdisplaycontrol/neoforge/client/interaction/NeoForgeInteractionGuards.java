@@ -3,6 +3,7 @@ package com.kizio.itemdisplaycontrol.neoforge.client.interaction;
 import com.kizio.itemdisplaycontrol.common.ItemDisplayControl;
 import com.kizio.itemdisplaycontrol.common.config.ProtectionTarget;
 import com.kizio.itemdisplaycontrol.common.interaction.ProtectionTargetResolver;
+import com.kizio.itemdisplaycontrol.common.math.ProjectionMath;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
@@ -155,7 +156,7 @@ public final class NeoForgeInteractionGuards {
     }
 
     private static double clampToBlock(double coordinate, int blockCoordinate) {
-        return Math.max(blockCoordinate, Math.min(blockCoordinate + 1.0D, coordinate));
+        return ProjectionMath.clampToBlock(coordinate, blockCoordinate);
     }
 
     private static ProtectionTarget resolveBlockTarget(ResourceLocation blockId) {

@@ -43,6 +43,24 @@ Practical rule:
 - wildcard imports are forbidden
 - compilation is enforced with `-Xlint:all -Werror`
 
+## Development Commands
+
+```bash
+# Code formatting check and auto-formatting
+./gradlew spotlessCheck
+./gradlew spotlessApply
+
+# Run unit and architectural tests
+./gradlew test
+
+# Full strict verification (structure, hygiene, spotless, tests, semver, metadata)
+./gradlew strictCheck
+
+# Run test client
+./gradlew :fabric:runClient
+./gradlew :neoforge:runClient
+```
+
 ## Documentation Style
 
 - short sections
