@@ -1,0 +1,178 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+MODE="dry-run"
+ALLOW_EXISTING_TAG="false"
+
+for arg in "$@"; do
+    case "$arg" in
+        --dry-run)
+            MODE="dry-run"
+            ;;
+        --publish)
+            MODE="publish"
+            ;;
+        --allow-existing-tag)
+            ALLOW_EXISTING_TAG="true"
+            ;;
+        *)
+            echo "Unknown argument: $arg"
+            echo "Usage: $0 [--dry-run | --publish] [--allow-existing-tag]"
+            exit 1
+            ;;
+    esac
+done
+
+echo "=== Item Display Control Release Preparation (mode: $MODE) ==="
+
+if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "Error: Not inside a git repository."
+    exit 1
+fi
+
+BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+echo "Current branch: $BRANCH"
+
+if [[ ! -f "gradle.properties" ]]; then
+    echo "Error: gradle.properties not found."
+    exit 1
+fi
+
+MOD_ID="$(grep '^mod_id=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')"
+MOD_VERSION="$(grep '^mod_version=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')"
+MINECRAFT_VERSION="$(grep '^minecraft_version=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')"
+ARTIFACT_BASE_NAME="$(grep '^artifact_base_name=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]' || true)"
+[ -z "$ARTIFACT_BASE_NAME" ] && ARTIFACT_BASE_NAME="item-display-control"
+
+BASE_VERSION="${MOD_VERSION%%+*}"
+MC_METADATA="${MOD_VERSION#*+}"
+
+echo "Mod ID: $MOD_ID"
+echo "Artifact Base Name: $ARTIFACT_BASE_NAME"
+echo "Mod Version: $MOD_VERSION (Base: $BASE_VERSION, Range: $MC_METADATA)"
+echo "Target Minecraft Version: $MINECRAFT_VERSION"
+
+TAG_NAME="v${MOD_VERSION}"
+
+case "$BRANCH" in
+    support/1.21.9-1.21.11)
+        EXPECTED_MC_RANGE="mc1.21.9-1.21.11"
+        ;;
+    support/26.1.x)
+        EXPECTED_MC_RANGE="mc26.1.x"
+        ;;
+    support/26.2.x)
+        EXPECTED_MC_RANGE="mc26.2.x"
+        ;;
+    main)
+        EXPECTED_MC_RANGE="mc26.3.x"
+        ;;
+    *)
+        EXPECTED_MC_RANGE=""
+        ;;
+esac
+
+if [[ -n "$EXPECTED_MC_RANGE" && "$MC_METADATA" != "$EXPECTED_MC_RANGE" ]]; then
+    echo "Error: Mod version metadata '$MC_METADATA' does not match branch expectation for '$BRANCH' (expected: '$EXPECTED_MC_RANGE')."
+    exit 1
+fi
+
+if [[ ! -f "CHANGELOG.md" ]]; then
+    echo "Error: CHANGELOG.md not found."
+    exit 1
+fi
+
+if ! grep -q -E "^## (\[?${MOD_VERSION}\]?|\[Unreleased\])" CHANGELOG.md; then
+    echo "Error: CHANGELOG.md does not contain an entry for version '${MOD_VERSION}' or '[Unreleased]'."
+    exit 1
+fi
+
+if [[ "$ALLOW_EXISTING_TAG" != "true" ]]; then
+    if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+        echo "Error: Local git tag '$TAG_NAME' already exists."
+        exit 1
+    fi
+
+    if git remote get-url origin >/dev/null 2>&1; then
+        REMOTE_TAG_CHECK=$(git ls-remote --tags origin "refs/tags/${TAG_NAME}" || true)
+        if [[ -n "$REMOTE_TAG_CHECK" ]]; then
+            echo "Error: Remote tag '$TAG_NAME' already exists on origin."
+            exit 1
+        fi
+    fi
+else
+    echo "Notice: Allowing release preparation with existing tag '$TAG_NAME'."
+fi
+
+if [[ "$MODE" == "publish" ]]; then
+    if [[ -n "$(git status --porcelain)" ]]; then
+        echo "Error: Working directory has uncommitted changes. Commit or stash all changes before running --publish."
+        exit 1
+    fi
+fi
+
+echo "--- 1. Validating repository structure and source hygiene ---"
+./scripts/validate-structure.sh
+./scripts/validate-source-hygiene.sh
+
+echo "--- 2. Running strict verification and pre-publish gates ---"
+./gradlew --no-daemon strictCheck publishReadyCheck
+
+echo "--- 3. Building release artifacts ---"
+./gradlew --no-daemon buildAll
+
+echo "--- 4. Verifying built artifacts ---"
+FABRIC_JAR="fabric/build/libs/${ARTIFACT_BASE_NAME}-${BASE_VERSION}-${MC_METADATA}-fabric.jar"
+NEOFORGE_JAR="neoforge/build/libs/${ARTIFACT_BASE_NAME}-${BASE_VERSION}-${MC_METADATA}-neoforge.jar"
+
+if [[ ! -f "$FABRIC_JAR" ]]; then
+    echo "Error: Fabric artifact not found: $FABRIC_JAR"
+    exit 1
+fi
+
+if [[ ! -f "$NEOFORGE_JAR" ]]; then
+    echo "Error: NeoForge artifact not found: $NEOFORGE_JAR"
+    exit 1
+fi
+
+echo "Found Fabric artifact: $FABRIC_JAR ($(du -h "$FABRIC_JAR" | cut -f1))"
+echo "Found NeoForge artifact: $NEOFORGE_JAR ($(du -h "$NEOFORGE_JAR" | cut -f1))"
+
+if [[ "$MODE" == "dry-run" ]]; then
+    echo ""
+    echo "=== DRY-RUN VERIFICATION SUCCESSFUL ==="
+    echo "Branch: $BRANCH"
+    echo "Target tag: $TAG_NAME"
+    echo "Version: $MOD_VERSION"
+    echo "All pre-release gates, tests, hygiene checks, and builds passed."
+    echo "To perform the actual release commit and tag push, run:"
+    echo "  ./scripts/release.sh --publish"
+    exit 0
+fi
+
+echo "--- 5. Preparing release commit and tag ---"
+
+git update-index -q --refresh || true
+if [[ -n "$(git status --porcelain)" ]]; then
+    git add -A
+    git commit -m "chore(release): ${TAG_NAME}"
+fi
+
+if [[ "$ALLOW_EXISTING_TAG" == "true" ]] && git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
+    echo "Notice: Tag '$TAG_NAME' already exists. Skipping tag creation."
+else
+    git tag -a "$TAG_NAME" -m "Release ${TAG_NAME}"
+fi
+
+echo "--- 6. Pushing branch and tag to origin ---"
+git push origin "$BRANCH" "$TAG_NAME"
+
+echo ""
+echo "=== RELEASE PUBLISHED SUCCESSFULLY ==="
+echo "Pushed branch: $BRANCH"
+echo "Pushed tag: $TAG_NAME"
+echo "GitHub Actions will build and deploy the release automatically."
