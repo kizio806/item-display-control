@@ -100,9 +100,11 @@ jobs:
             echo "No valid Fabric versions found."
             exit 1
           fi
-          echo "list<<EOF_LIST" >> "$GITHUB_OUTPUT"
-          echo "$NORMALIZED" >> "$GITHUB_OUTPUT"
-          echo "EOF_LIST" >> "$GITHUB_OUTPUT"
+          {
+            echo "list<<EOF_LIST"
+            echo "$NORMALIZED"
+            echo "EOF_LIST"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Normalize NeoForge game versions
         id: neoforge_versions
@@ -113,9 +115,11 @@ jobs:
             echo "No valid NeoForge versions found."
             exit 1
           fi
-          echo "list<<EOF_LIST" >> "$GITHUB_OUTPUT"
-          echo "$NORMALIZED" >> "$GITHUB_OUTPUT"
-          echo "EOF_LIST" >> "$GITHUB_OUTPUT"
+          {
+            echo "list<<EOF_LIST"
+            echo "$NORMALIZED"
+            echo "EOF_LIST"
+          } >> "$GITHUB_OUTPUT"
 
       - name: Compute Fabric supported range label
         id: fabric_range

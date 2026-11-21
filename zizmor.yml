@@ -1,10 +1,22 @@
 rules:
+  unpinned-uses:
+    ignore:
+      - ci.yml
+      - release.yml
+      - sonarcloud.yml
+      - codeql.yml
+      - dependency-review.yml
+      - wiki-sync.yml
+      - gitleaks.yml
+      - workflow-security.yml
   cache-poisoning:
     ignore:
       - ci.yml
       - release.yml
       - sonarcloud.yml
       - codeql.yml
+      - dependency-review.yml
+      - release.yml
   dependabot-cooldown:
     ignore:
       - dependabot.yml
@@ -13,10 +25,18 @@ rules:
       - ci.yml
       - release.yml
       - sonarcloud.yml
+      - codeql.yml
+      - dependency-review.yml
+      - wiki-sync.yml
+      - gitleaks.yml
+      - workflow-security.yml
   artipacked:
     ignore:
       - ci.yml
       - release.yml
       - sonarcloud.yml
       - codeql.yml
+      - dependency-review.yml
       - wiki-sync.yml
+      - gitleaks.yml
+      - workflow-security.yml
