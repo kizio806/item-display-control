@@ -3,6 +3,8 @@
 [![CI](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml/badge.svg)](https://github.com/kizio806/item-display-control/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/kizio806/item-display-control?sort=semver)](https://github.com/kizio806/item-display-control/releases)
 [![Modrinth](https://img.shields.io/badge/Modrinth-release%20ready-00AF5C?logo=modrinth)](docs/modrinth.md)
+[![Java Version](https://img.shields.io/badge/Java-25-ED8B00?logo=openjdk)](gradle.properties)
+[![Minecraft Version](https://img.shields.io/badge/Minecraft-26.1.x-brightgreen?logo=minecraft)](gradle.properties)
 [![License](https://img.shields.io/github/license/kizio806/item-display-control)](LICENSE)
 
 Item Display Control is a client-side Minecraft mod designed to enhance your gameplay experience by preventing accidental item placements. It blocks unintended insertions into item frames, glow item frames, armor stands, flower pots, decorated pots, chiseled bookshelves, shelf-like blocks, lecterns, jukeboxes, campfires, composters, respawn anchors, and other common insertion targets.
