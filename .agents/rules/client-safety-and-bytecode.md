@@ -46,8 +46,8 @@ public final class ItemDisplayControlNeoForge {
 // Bad: Creating Mixin accessors
 @Mixin(LivingEntity.class)
 public interface LivingEntityAccessor {
-    @Accessor("jumpDelay") // Strictly forbidden by scripts/validate-structure.sh!
-    int getJumpDelay();
+    @Accessor("item") // Strictly forbidden by scripts/validate-structure.sh!
+    ItemStack getItem();
 }
 ```
 

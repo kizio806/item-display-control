@@ -17,7 +17,7 @@ if [[ -n "$ROOT_CLASS_FILES" ]]; then
     exit 1
 fi
 
-EMPTY_DIRS=$(find common/src/main fabric/src/main neoforge/src/main -type d -empty 2>/dev/null | sort || true)
+EMPTY_DIRS=$(find common/src/main common/src/client fabric/src/main neoforge/src/main -type d -empty 2>/dev/null | sort || true)
 
 if [[ -n "$EMPTY_DIRS" ]]; then
     echo "Found empty source directories:"
@@ -35,7 +35,12 @@ search_code() {
     fi
 }
 
-COMMON_PLATFORM_IMPORTS=$(search_code 'import (net\.fabricmc|net\.neoforged)\.' common/src/main/java)
+CLIENT_SRC=()
+if [[ -d "common/src/client/java" ]]; then
+    CLIENT_SRC=("common/src/client/java")
+fi
+
+COMMON_PLATFORM_IMPORTS=$(search_code 'import (net\.fabricmc|net\.neoforged)\.' common/src/main/java "${CLIENT_SRC[@]}")
 
 if [[ -n "$COMMON_PLATFORM_IMPORTS" ]]; then
     echo "Found loader-specific imports in common:"
@@ -43,7 +48,7 @@ if [[ -n "$COMMON_PLATFORM_IMPORTS" ]]; then
     exit 1
 fi
 
-FORBIDDEN_ACCESSORS=$(search_code '@Accessor|@Invoker' common/src/main/java fabric/src/main/java neoforge/src/main/java)
+FORBIDDEN_ACCESSORS=$(search_code '@Accessor|@Invoker' common/src/main/java fabric/src/main/java neoforge/src/main/java "${CLIENT_SRC[@]}")
 
 if [[ -n "$FORBIDDEN_ACCESSORS" ]]; then
     echo "Found forbidden accessor/invoker mixins:"
@@ -51,7 +56,7 @@ if [[ -n "$FORBIDDEN_ACCESSORS" ]]; then
     exit 1
 fi
 
-for src_root in "common/src/main/java" "fabric/src/main/java" "neoforge/src/main/java"; do
+for src_root in "common/src/main/java" "common/src/client/java" "fabric/src/main/java" "neoforge/src/main/java"; do
     if [[ -d "$src_root" ]]; then
         while IFS= read -r java_file; do
             pkg=$(sed -n -E 's/^[[:space:]]*package[[:space:]]+([a-zA-Z0-9_.]+)[[:space:]]*;.*$/\1/p' "$java_file" | head -n 1)

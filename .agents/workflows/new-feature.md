@@ -29,7 +29,7 @@ flowchart TD
   - Verify whether the desired API is stable across Minecraft patch updates.
 - **Inspect Existing Repository Patterns:**
   - Check how similar features are wired in `common`, `fabric`, and `neoforge`.
-  - Check whether `JumpInput` or `ToggleFeedback` already provide appropriate hooks.
+  - Check whether `ToggleFeedback` or existing interaction events already provide appropriate hooks.
 - **Check External Documentation:**
   - Review Fabric Wiki and NeoForge Documentation for version-specific breaking changes.
 
@@ -41,7 +41,7 @@ flowchart TD
   - What minimal interfaces are required in `:common` for loader adapters to implement?
 - **Configuration & Persistence:**
   - Does this feature need a persistent setting?
-  - If yes, define the property in `RuntimeConfig`, `ConfigStorage`, and `ConfigManager`.
+  - If yes, define the property in `ItemDisplayRuntimeConfig` and `ItemDisplayConfigStorage`.
 - **UI & Localization:**
   - Does it need buttons or options on the settings screen?
   - Plan translation keys and update all 10 language files in `common/src/main/resources/assets/itemdisplaycontrol/lang/`.
@@ -68,7 +68,7 @@ flowchart TD
 ## Stage 5: Testing
 - **Unit Tests:**
   - Write comprehensive JUnit 5/6 tests in `common/src/test/java/`.
-  - Use mock/fake implementations of `JumpInput` to test edge cases.
+  - Use mock/fake implementations to test edge cases.
 - **Localization Test:**
   - Run `LocalizationCompletenessTest` to guarantee all 10 locales match `en_us.json`.
 - **Server Safety Test:**
