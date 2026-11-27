@@ -166,7 +166,7 @@ public final class FabricSettingsScreen extends Screen {
     public void onClose() {
         ItemDisplayControl.flushPendingConfiguration();
         if (this.minecraft != null) {
-            this.minecraft.setScreenAndShow(parent);
+            this.minecraft.setScreen(parent);
         }
     }
 

@@ -112,8 +112,8 @@ public final class FabricInteractionGuards {
         placementBypassActive = true;
         try {
             InteractionResult result = client.gameMode.useItemOn(clientPlayer, hand, hitResult);
-            if (result instanceof InteractionResult.Success) {
-                player.swing(hand, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+            if (result instanceof InteractionResult.Success success) {
+                player.swing(hand);
             }
         } finally {
             placementBypassActive = false;

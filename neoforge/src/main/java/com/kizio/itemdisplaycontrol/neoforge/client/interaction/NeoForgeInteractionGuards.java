@@ -90,7 +90,7 @@ public final class NeoForgeInteractionGuards {
         try {
             InteractionResult result = client.gameMode.useItemOn(localPlayer, hand, placementHitResult);
             if (result == InteractionResult.SUCCESS) {
-                localPlayer.swing(hand, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+                localPlayer.swing(hand);
             }
         } finally {
             placementBypassActive = false;
@@ -111,13 +111,13 @@ public final class NeoForgeInteractionGuards {
 
     private static BlockHitResult createPlacementHitResult(HitResult hitResult) {
         return switch (hitResult.getType()) {
-            case BLOCK -> createPlacementHitResultFromBlockHit((BlockHitResult) hitResult);
-            case ENTITY -> createPlacementHitResultFromEntityHit((EntityHitResult) hitResult);
+            case BLOCK -> createPlacementHitResult((BlockHitResult) hitResult);
+            case ENTITY -> createPlacementHitResult((EntityHitResult) hitResult);
             default -> null;
         };
     }
 
-    private static BlockHitResult createPlacementHitResultFromBlockHit(BlockHitResult originalHitResult) {
+    private static BlockHitResult createPlacementHitResult(BlockHitResult originalHitResult) {
         Direction clickedSide = originalHitResult.getDirection();
         BlockPos placementPos = originalHitResult.getBlockPos().relative(clickedSide);
         Direction placementSide = clickedSide.getOpposite();
@@ -129,7 +129,7 @@ public final class NeoForgeInteractionGuards {
         );
     }
 
-    private static BlockHitResult createPlacementHitResultFromEntityHit(EntityHitResult hitResult) {
+    private static BlockHitResult createPlacementHitResult(EntityHitResult hitResult) {
         if (!(hitResult.getEntity() instanceof ItemFrame itemFrame)) {
             return null;
         }
