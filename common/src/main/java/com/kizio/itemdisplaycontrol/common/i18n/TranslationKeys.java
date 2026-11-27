@@ -1,5 +1,8 @@
 package com.kizio.itemdisplaycontrol.common.i18n;
 
+/**
+ * Canonical localization key constants matching language JSON translation files.
+ */
 public final class TranslationKeys {
 
     public static final String CATEGORY = "category.itemdisplaycontrol";

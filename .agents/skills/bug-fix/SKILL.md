@@ -15,11 +15,11 @@ Use this skill when:
    - Gather environment details (Minecraft version, loader, server type, anticheat).
    - Write a deterministic failing test case in `common/src/test/java/` that reproduces the bug.
 2. **Root Cause Analysis:**
-   - Trace the exact failure mechanism in `JumpHandler`, `ConfigStorage`, or loader event listeners.
+   - Trace the exact failure mechanism in `ItemDisplayControlEngine`, `ProtectionTargetResolver`, or loader interaction listeners.
    - Question assumptions about existing code correctness.
 3. **Verify Assumptions:**
    - Confirm whether the issue affects singleplayer, multiplayer, or specific loaders.
-   - Evaluate potential side effects of proposed fixes on jump responsiveness.
+   - Evaluate potential side effects of proposed fixes on block placement responsiveness or sneak bypass.
 4. **Implement Targeted Fix:**
    - Apply clean, maintainable solution without defensive workarounds.
    - Strictly **ZERO** Java comments, markers, or wildcard imports.

@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## 1.0.0+mc26.3.x
+## 1.0.0+mc1.21.9-1.21.11
 
 ### Added
 - Canonical compatibility matrix (`docs/compatibility-matrix.md`) detailing multi-branch support, loader dependencies, artifact generation strategies, and verification results across all supported combinations.
@@ -14,8 +14,11 @@ All notable changes to this project will be documented in this file.
 - Sneak-to-bypass functionality allowing instant intentional interaction by holding sneak (`Shift`).
 - Adjacent block placement bypass automatically projecting and placing held blocks against the clicked adjacent container face.
 - Actionbar HUD status notifications localized across 10 languages (English, Polish, German, Spanish, French, Italian, Japanese, Portuguese, Russian, and Simplified Chinese).
+- Headless GameTests verifying bootstrap stability across Fabric and NeoForge game test harnesses.
 
 ### Changed
+- Metrics & Duplication Transparency: Removed `sonar.cpd.exclusions` from build configuration and SonarCloud analysis, ensuring honest duplication tracking across loaders.
+- Added comprehensive Javadoc documentation across all public interfaces, domain models, and client helper classes.
 - Standardized multi-loader release JAR outputs to `item-display-control-<BASE_VERSION>-<MC_METADATA>-fabric.jar` and `item-display-control-<BASE_VERSION>-<MC_METADATA>-neoforge.jar`.
 - Fully decoupled `:common` module with zero Minecraft or loader imports, enforcing constructor dependency injection in `ItemDisplayControlEngine`.
 - Asynchronous, debounced configuration persistence with atomic file replacement in `ItemDisplayConfigStorage`.
@@ -23,7 +26,7 @@ All notable changes to this project will be documented in this file.
 - Pinned all GitHub Actions across all workflow definitions (`ci.yml`, `codeql.yml`, `release.yml`, `sonarcloud.yml`, `wiki-sync.yml`, `labeler.yml`) to immutable full commit SHAs.
 
 ### Compatibility
-- Minecraft: 26.3
-- Fabric: Loader 0.18.4+ / Fabric API 0.160.6+26.3
-- NeoForge: 26.3.0.3-beta+
-- Java: 25
+- Minecraft: 1.21.9, 1.21.10, 1.21.11
+- Fabric: Loader 0.18.4+ / Fabric API 0.134.1+1.21.11
+- NeoForge: 21.11.48+
+- Java: 21

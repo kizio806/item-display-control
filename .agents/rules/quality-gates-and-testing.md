@@ -11,18 +11,12 @@ The repository enforces a strict zero-tolerance quality pipeline (`strictCheck` 
 
 ## Do:
 ```java
-// Correct: Isolated unit tests using mock or fake implementations in common
-class JumpHandlerTest {
+// Correct: Isolated unit tests in common
+class ProtectionTargetResolverTest {
     @Test
-    void shouldNotTriggerJumpWhenPlayerIsNotGrounded() {
-        FakeJumpInput input = new FakeJumpInput();
-        input.setOnGround(false);
-        input.setJumpPressed(true);
-
-        JumpHandler handler = new JumpHandler(input);
-        handler.tick();
-
-        assertFalse(input.hasJumped());
+    void shouldResolveItemFrameTarget() {
+        ProtectionTarget target = ProtectionTargetResolver.resolveEntityTarget("minecraft", "item_frame");
+        assertEquals(ProtectionTarget.ITEM_FRAMES, target);
     }
 }
 ```
