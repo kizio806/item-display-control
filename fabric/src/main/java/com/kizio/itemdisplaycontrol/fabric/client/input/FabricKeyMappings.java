@@ -8,13 +8,13 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.resources.Identifier;
-import org.lwjgl.sdl.SDLKeycode;
+import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public final class FabricKeyMappings {
 
-    private static final int DEFAULT_TOGGLE_KEY = SDLKeycode.SDLK_J;
-    private static final int DEFAULT_CONFIG_KEY = SDLKeycode.SDLK_O;
+    private static final int DEFAULT_TOGGLE_KEY = GLFW.GLFW_KEY_J;
+    private static final int DEFAULT_CONFIG_KEY = GLFW.GLFW_KEY_O;
 
     private static final KeyMapping.Category KEY_CATEGORY = new KeyMapping.Category(
             Identifier.fromNamespaceAndPath(Constants.MOD_ID, "itemdisplaycontrol")
@@ -33,14 +33,14 @@ public final class FabricKeyMappings {
 
         toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 TranslationKeys.KEY_TOGGLE,
-                InputConstants.Type.KEYBOARD,
+                InputConstants.Type.KEYSYM,
                 DEFAULT_TOGGLE_KEY,
                 KEY_CATEGORY
         ));
 
         configKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
                 TranslationKeys.KEY_CONFIG,
-                InputConstants.Type.KEYBOARD,
+                InputConstants.Type.KEYSYM,
                 DEFAULT_CONFIG_KEY,
                 KEY_CATEGORY
         ));

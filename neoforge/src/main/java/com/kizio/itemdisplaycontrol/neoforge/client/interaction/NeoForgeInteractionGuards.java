@@ -90,7 +90,7 @@ public final class NeoForgeInteractionGuards {
         try {
             InteractionResult result = client.gameMode.useItemOn(localPlayer, hand, placementHitResult);
             if (result == InteractionResult.SUCCESS) {
-                localPlayer.swing(hand, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+                localPlayer.swing(hand);
             }
         } finally {
             placementBypassActive = false;
