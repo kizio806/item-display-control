@@ -8,6 +8,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+/**
+ * In-memory runtime configuration state for Item Display Control.
+ * Holds per-target flags, whitelist/blacklist sets, and item insertion rules.
+ */
 public final class ItemDisplayRuntimeConfig {
 
     private static final Pattern VALID_NAMESPACE = Pattern.compile("[a-z0-9_.-]+");

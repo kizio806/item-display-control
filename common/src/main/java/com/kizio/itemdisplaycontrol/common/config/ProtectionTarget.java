@@ -2,6 +2,9 @@ package com.kizio.itemdisplaycontrol.common.config;
 
 import java.util.Arrays;
 import java.util.List;
+/**
+ * Enumeration of supported block and entity protection target categories.
+ */
 public enum ProtectionTarget {
     ITEM_FRAMES("itemFrames", "message.itemdisplaycontrol.target.item_frames"),
     ARMOR_STANDS("armorStands", "message.itemdisplaycontrol.target.armor_stands"),
