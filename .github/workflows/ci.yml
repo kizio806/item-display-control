@@ -1,0 +1,204 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main, 'release/**', 'support/**' ]
+  push:
+    branches: [ main, 'release/**', 'support/**' ]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  JAVA_VERSION: '25'
+
+jobs:
+  lint:
+    name: Lint & Structure
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate Gradle Wrapper
+        uses: gradle/actions/wrapper-validation@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Setup JDK
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Ensure Gradle executable bit
+        run: chmod +x ./gradlew
+
+      - name: Structure, hygiene, semver and format validation
+        run: ./gradlew --no-daemon validateStructure validateSourceHygiene verifySemverVersion verifyMinecraftVersionMatrix spotlessCheck
+
+  test-common:
+    name: Unit Tests (Common)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    needs: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup JDK
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Ensure Gradle executable bit
+        run: chmod +x ./gradlew
+
+      - name: Run common tests
+        run: ./gradlew --no-daemon :common:test :common:jacocoTestReport --rerun-tasks
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        with:
+          files: common/build/reports/jacoco/test/jacocoTestReport.xml
+          flags: common
+          fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ${{ github.repository }}
+          verbose: true
+
+  test-fabric:
+    name: Build & Test (Fabric)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup JDK
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Ensure Gradle executable bit
+        run: chmod +x ./gradlew
+
+      - name: Build and test Fabric
+        run: ./gradlew --no-daemon :fabric:build :fabric:check
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports-fabric
+          path: |
+            fabric/build/reports/tests/**
+            fabric/build/test-results/**
+          if-no-files-found: ignore
+
+      - name: Upload Fabric JAR
+        if: success()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fabric-jar
+          path: fabric/build/libs/*.jar
+          if-no-files-found: error
+
+  test-neoforge:
+    name: Build & Test (NeoForge)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    needs: lint
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup JDK
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Ensure Gradle executable bit
+        run: chmod +x ./gradlew
+
+      - name: Build and test NeoForge
+        run: ./gradlew --no-daemon :neoforge:build :neoforge:check
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-reports-neoforge
+          path: |
+            neoforge/build/reports/tests/**
+            neoforge/build/test-results/**
+          if-no-files-found: ignore
+
+      - name: Upload NeoForge JAR
+        if: success()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: neoforge-jar
+          path: neoforge/build/libs/*.jar
+          if-no-files-found: error
+
+  verify:
+    name: Verify Release Readiness
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    needs: [ test-common, test-fabric, test-neoforge ]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Setup JDK
+        uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+        with:
+          distribution: temurin
+          java-version: ${{ env.JAVA_VERSION }}
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+      - name: Ensure Gradle executable bit
+        run: chmod +x ./gradlew
+
+      - name: Full strict check
+        run: ./gradlew --no-daemon strictCheck

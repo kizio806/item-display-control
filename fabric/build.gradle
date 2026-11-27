@@ -1,0 +1,370 @@
+import groovy.json.JsonSlurper
+
+import java.util.zip.ZipFile
+
+plugins {
+    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/releases/'
+    }
+    maven {
+        name = 'Mojang'
+        url = 'https://libraries.minecraft.net/'
+    }
+    maven {
+        name = 'MavenCentralLWJGL'
+        url = 'https://repo.maven.apache.org/maven2/'
+        content {
+            includeGroupByRegex 'org\\.lwjgl.*'
+        }
+    }
+}
+
+def baseVersion = mod_version.split('\\+')[0]
+def mcMetadata = mod_version.contains('+') ? mod_version.split('\\+')[1] : "mc${minecraft_version}"
+def artifactBaseName = findProperty('artifact_base_name') ?: 'item-display-control'
+
+base {
+    archivesName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric"
+}
+
+sourceSets {
+    main {
+        java.srcDirs += project(':common').sourceSets.main.java.srcDirs
+        resources.srcDirs += project(':common').sourceSets.main.resources.srcDirs
+    }
+}
+
+if (rootProject.ext.sharedVersions.mappings) {
+    loom.createRemapConfigurations(sourceSets.test)
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${rootProject.ext.sharedVersions.minecraft}"
+
+    implementation "net.fabricmc:fabric-loader:${loader_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    compileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+    runtimeOnly "com.terraformersmc:modmenu:${modmenu_version}"
+
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.platform.launcher
+}
+
+loom {
+    getEnableModProvidedJavadoc().set(false)
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+        "${mod_id}FabricTests" {
+            sourceSet sourceSets.test
+        }
+    }
+
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+        }
+        server {
+            server()
+            setConfigName('Fabric Dedicated Server')
+            ideConfigGenerated(true)
+        }
+        gameTestServer {
+            server()
+            setConfigName('Fabric GameTest Server')
+            ideConfigGenerated(false)
+            source(sourceSets.test)
+            vmArg '-Dfabric-api.gametest'
+            vmArg "-Dfabric-api.gametest.report-file=${layout.buildDirectory.file('test-results/fabricGameTest/junit.xml').get().asFile.absolutePath}"
+            runDir 'build/gametest'
+        }
+    }
+}
+
+def fabricGameTestReport = layout.buildDirectory.file('test-results/fabricGameTest/junit.xml')
+
+def metadataProperties = [
+        mod_id                        : mod_id,
+        mod_name                      : mod_name,
+        mod_version                   : project.version,
+        mod_description               : mod_description,
+        mod_author                    : mod_author,
+        mod_license                   : mod_license,
+        mod_icon                      : mod_icon,
+        mod_homepage                  : mod_homepage,
+        mod_sources                   : mod_sources,
+        mod_issues                    : mod_issues,
+        minecraft_version             : minecraft_version,
+        fabric_minecraft_version_range: fabric_minecraft_version_range,
+        loader_version                : loader_version,
+        fabric_api_version            : fabric_api_version
+]
+
+def commonIconFile = project(':common').layout.projectDirectory.file("src/main/resources/${mod_icon}").asFile
+def productionModJsonFile = layout.projectDirectory.file('src/main/resources/fabric.mod.json').asFile
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    inputs.properties(metadataProperties)
+
+    filesMatching('fabric.mod.json') {
+        expand(metadataProperties)
+    }
+}
+
+tasks.register('validateProductionMetadata') {
+    group = 'verification'
+    description = 'Validates Fabric production metadata and icon dimensions.'
+    dependsOn tasks.processResources
+
+    doLast {
+        if (!commonIconFile.exists()) {
+            throw new GradleException("Missing icon file: ${commonIconFile}")
+        }
+
+        def image = javax.imageio.ImageIO.read(commonIconFile)
+        if (image == null) {
+            throw new GradleException("Icon is not a valid image: ${commonIconFile}")
+        }
+        if (image.width != 512 || image.height != 512) {
+            throw new GradleException("Icon must be exactly 512x512, got ${image.width}x${image.height}")
+        }
+
+        if (!productionModJsonFile.exists()) {
+            throw new GradleException("Missing fabric.mod.json in ${productionModJsonFile.parentFile}")
+        }
+    }
+}
+
+def parseMinecraftVersion = { String versionText ->
+    def matcher = (versionText =~ /^(\d+)\.(\d+)(?:\.(\d+))?(?:[-+].*)?$/)
+    if (!matcher.matches()) {
+        throw new GradleException("Invalid Minecraft version '${versionText}'. Expected format: MAJOR.MINOR[.PATCH]")
+    }
+
+    [
+            major: matcher.group(1).toInteger(),
+            minor: matcher.group(2).toInteger(),
+            patch: matcher.group(3) ? matcher.group(3).toInteger() : 0
+    ]
+}
+
+def compareMinecraftVersions = { String left, String right ->
+    def parsedLeft = parseMinecraftVersion(left)
+    def parsedRight = parseMinecraftVersion(right)
+
+    (parsedLeft.major <=> parsedRight.major) ?:
+            (parsedLeft.minor <=> parsedRight.minor) ?:
+            (parsedLeft.patch <=> parsedRight.patch)
+}
+
+def supportsMinecraftRequirement = { String versionText, String requirementText ->
+    def normalizedRequirement = requirementText?.trim()
+    if (normalizedRequirement == null || normalizedRequirement.isEmpty() || normalizedRequirement == '*') {
+        return true
+    }
+
+    def clauses = normalizedRequirement.split(/\s+/).findAll { !it.isEmpty() }
+    clauses.every { clause ->
+        if (clause == '*') {
+            return true
+        }
+        if (clause.startsWith(">=")) {
+            return compareMinecraftVersions(versionText, clause.substring(2)) >= 0
+        }
+        if (clause.startsWith("<=")) {
+            return compareMinecraftVersions(versionText, clause.substring(2)) <= 0
+        }
+        if (clause.startsWith(">")) {
+            return compareMinecraftVersions(versionText, clause.substring(1)) > 0
+        }
+        if (clause.startsWith("<")) {
+            return compareMinecraftVersions(versionText, clause.substring(1)) < 0
+        }
+        if (clause.startsWith("=")) {
+            return compareMinecraftVersions(versionText, clause.substring(1)) == 0
+        }
+        if (clause.startsWith("~")) {
+            def base = clause.substring(1).replaceAll(/[-+].*$/, '')
+            def parsedBase = parseMinecraftVersion(base)
+            def isLowerSatisfied = compareMinecraftVersions(versionText, base) >= 0
+            def isUpperSatisfied = compareMinecraftVersions(versionText, "${parsedBase.major}.${parsedBase.minor + 1}.0") < 0
+            return isLowerSatisfied && isUpperSatisfied
+        }
+        if (clause.startsWith("^")) {
+            def base = clause.substring(1).replaceAll(/[-+].*$/, '')
+            def parsedBase = parseMinecraftVersion(base)
+            def isLowerSatisfied = compareMinecraftVersions(versionText, base) >= 0
+            def isUpperSatisfied = compareMinecraftVersions(versionText, "${parsedBase.major + 1}.0.0") < 0
+            return isLowerSatisfied && isUpperSatisfied
+        }
+        if (!(clause ==~ /^\d+(\.\d+)*$/)) {
+            println "Warning: Unsupported Fabric Minecraft requirement syntax '${clause}' in '${requirementText}'."
+            return true
+        }
+        return compareMinecraftVersions(versionText, clause) == 0
+    }
+}
+
+def readFabricModMetadata = { File jarFile ->
+    try (def zip = new ZipFile(jarFile)) {
+        def entry = zip.getEntry('fabric.mod.json')
+        if (entry == null) {
+            return null
+        }
+
+        try (def stream = zip.getInputStream(entry)) {
+            return new JsonSlurper().parse(stream)
+        }
+    }
+}
+
+tasks.register('verifyRuntimeDependencyCompatibility') {
+    group = 'verification'
+    description = 'Checks whether declared Fabric runtime dependencies support every configured Fabric game version.'
+
+    doLast {
+        def supportedVersions = fabric_game_versions
+                .toString()
+                .split(',')
+                .collect { it.trim() }
+                .findAll { !it.isEmpty() }
+        def incompatibleDependencies = []
+
+        [
+                "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}",
+                "com.terraformersmc:modmenu:${modmenu_version}"
+        ].each { notation ->
+            if (notation.startsWith("net.fabricmc.fabric-api:fabric-api:")) {
+                def unhandledVersions = []
+                supportedVersions.each { version ->
+                    def candidateVersions = [
+                            fabric_api_version,
+                            "0.141.2+${version}",
+                            "0.138.4+${version}",
+                            "0.130.0+${version}",
+                            "0.100.0+${version}"
+                    ]
+                    def found = candidateVersions.any { candVer ->
+                        try {
+                            def cfg = configurations.detachedConfiguration(dependencies.create("net.fabricmc.fabric-api:fabric-api:${candVer}"))
+                            cfg.transitive = false
+                            def art = cfg.resolvedConfiguration.resolvedArtifacts.first()
+                            def meta = readFabricModMetadata(art.file)
+                            def req = meta?.depends?.minecraft?.toString()
+                            return req != null && supportsMinecraftRequirement(version, req)
+                        } catch (Exception ignored) {
+                            return false
+                        }
+                    }
+                    if (!found) {
+                        unhandledVersions << version
+                    }
+                }
+                if (!unhandledVersions.isEmpty()) {
+                    incompatibleDependencies << "net.fabricmc.fabric-api:fabric-api missing compatible version for Fabric game versions: ${unhandledVersions.join(', ')}"
+                }
+            } else {
+                def compatibilityConfig = configurations.detachedConfiguration(dependencies.create(notation))
+                compatibilityConfig.transitive = false
+
+                def artifact = compatibilityConfig.resolvedConfiguration.resolvedArtifacts.first()
+                def metadata = readFabricModMetadata(artifact.file)
+                if (metadata == null) {
+                    throw new GradleException("Missing fabric.mod.json in resolved dependency ${artifact.moduleVersion.id}")
+                }
+
+                def minecraftRequirement = metadata.depends?.minecraft?.toString()
+                if (minecraftRequirement == null) {
+                    throw new GradleException("Resolved dependency ${artifact.moduleVersion.id} does not declare a minecraft dependency in fabric.mod.json")
+                }
+
+                def incompatibleVersions = supportedVersions.findAll { version ->
+                    !supportsMinecraftRequirement(version, minecraftRequirement)
+                }
+                if (!incompatibleVersions.isEmpty()) {
+                    incompatibleDependencies << "${artifact.moduleVersion.id} requires '${minecraftRequirement}' but fabric_game_versions declares ${supportedVersions} (fails: ${incompatibleVersions.join(', ')})"
+                }
+            }
+        }
+
+        if (!incompatibleDependencies.isEmpty()) {
+            throw new GradleException(
+                    "Fabric runtime dependency metadata is incompatible with configured Fabric support:\n - " +
+                            incompatibleDependencies.join('\n - ')
+            )
+        }
+    }
+}
+
+tasks.register('headlessGameTest') {
+    group = 'verification'
+    description = 'Runs Fabric GameTest server headlessly.'
+    dependsOn(tasks.named('runGameTestServer'))
+
+    doLast {
+        def reportFile = fabricGameTestReport.get().asFile
+        if (!reportFile.exists()) {
+            throw new GradleException("Missing Fabric GameTest report: ${reportFile}")
+        }
+    }
+}
+
+tasks.named('jacocoTestReport') {
+    classDirectories.setFrom(files(classDirectories.files.collect {
+        fileTree(dir: it, include: 'com/kizio/itemdisplaycontrol/fabric/**')
+    }))
+}
+
+tasks.named('check') {
+    dependsOn(tasks.named('verifyRuntimeDependencyCompatibility'), tasks.named('validateProductionMetadata'))
+}
+
+jar {
+    archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar"
+    archiveClassifier.set('')
+    from(rootProject.file('LICENSE')) {
+        rename { "${it}_${mod_id}" }
+    }
+}
+
+tasks.named('sourcesJar') {
+    archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources.jar"
+    archiveClassifier.set('')
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+afterEvaluate {
+    if (tasks.findByName('remapJar') != null) {
+        tasks.named('remapJar') {
+            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar"
+        }
+        tasks.named('jar') {
+            destinationDirectory.set(layout.buildDirectory.dir('intermediates/libs'))
+            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-dev.jar"
+        }
+    }
+    if (tasks.findByName('remapSourcesJar') != null) {
+        tasks.named('remapSourcesJar') {
+            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources.jar"
+        }
+        tasks.named('sourcesJar') {
+            destinationDirectory.set(layout.buildDirectory.dir('intermediates/libs'))
+            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources-dev.jar"
+        }
+    }
+}

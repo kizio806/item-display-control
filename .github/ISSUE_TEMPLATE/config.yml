@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 General Discussion
+    url: https://github.com/kizio806/item-display-control/discussions
+    about: Questions, ideas, and general chat about Item Display Control.
+  - name: 📦 Download on Modrinth
+    url: https://modrinth.com/mod/item-display-control
+    about: Download the latest release.
+  - name: 📖 Wiki
+    url: https://github.com/kizio806/item-display-control/wiki
+    about: Installation, usage, and troubleshooting guides.

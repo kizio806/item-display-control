@@ -1,0 +1,62 @@
+name: "CodeQL Analysis"
+
+on:
+  push:
+    branches: [ "main", "support/**" ]
+  pull_request:
+    branches: [ "main", "support/**" ]
+  schedule:
+    - cron: '30 2 * * 1'
+
+jobs:
+  analyze:
+    name: Analyze
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      security-events: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'java' ]
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      with:
+        persist-credentials: false
+
+    - name: Read Java version
+      id: jvm
+      run: |
+        JVM_VER=$(grep '^java_version=' gradle.properties | cut -d'=' -f2 | tr -d '[:space:]')
+        if [ -z "$JVM_VER" ] || [ "$JVM_VER" -lt 21 ]; then
+          RUNNER_JVM="21"
+        else
+          RUNNER_JVM="$JVM_VER"
+        fi
+        echo "version=${RUNNER_JVM}" >> "$GITHUB_OUTPUT"
+
+    - name: Set up Java
+      uses: actions/setup-java@d1374f8ac74474200d16ef8ecee22c7ae7a51880 # v6.3.0
+      with:
+        java-version: ${{ steps.jvm.outputs.version }}
+        distribution: 'temurin'
+
+    - name: Setup Gradle
+      uses: gradle/actions/setup-gradle@8da46b539cd8fe6ab27ca75128919a18d757604c # v6.4.1
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+      with:
+        languages: ${{ matrix.language }}
+        queries: security-extended,security-and-quality
+
+    - name: Build project for CodeQL
+      run: ./gradlew --no-daemon --no-build-cache clean buildAll
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@1bd86f2fdb4b86187fa4059f16f31a3202acc9ea # v4.39.4
+      with:
+        category: "/language:${{matrix.language}}"

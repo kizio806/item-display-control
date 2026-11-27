@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+if [[ -d "src" ]]; then
+    echo "Disallowed orphaned root src/ directory detected. All code must reside in common/, fabric/, or neoforge/."
+    exit 1
+fi
+
+ROOT_CLASS_FILES=$(find . -maxdepth 1 -name "*.class" || true)
+if [[ -n "$ROOT_CLASS_FILES" ]]; then
+    echo "Disallowed stray .class files detected in root directory:"
+    echo "$ROOT_CLASS_FILES"
+    exit 1
+fi
+
+EMPTY_DIRS=$(find common/src/main fabric/src/main neoforge/src/main -type d -empty 2>/dev/null | sort || true)
+
+if [[ -n "$EMPTY_DIRS" ]]; then
+    echo "Found empty source directories:"
+    echo "$EMPTY_DIRS"
+    exit 1
+fi
+
+search_code() {
+    local pattern="$1"
+    shift
+    if command -v rg >/dev/null 2>&1; then
+        rg -n "$pattern" "$@" 2>/dev/null || true
+    else
+        grep -rnE "$pattern" "$@" 2>/dev/null || true
+    fi
+}
+
+COMMON_PLATFORM_IMPORTS=$(search_code 'import (net\.fabricmc|net\.neoforged)\.' common/src/main/java)
+
+if [[ -n "$COMMON_PLATFORM_IMPORTS" ]]; then
+    echo "Found loader-specific imports in common:"
+    echo "$COMMON_PLATFORM_IMPORTS"
+    exit 1
+fi
+
+FORBIDDEN_ACCESSORS=$(search_code '@Accessor|@Invoker' common/src/main/java fabric/src/main/java neoforge/src/main/java)
+
+if [[ -n "$FORBIDDEN_ACCESSORS" ]]; then
+    echo "Found forbidden accessor/invoker mixins:"
+    echo "$FORBIDDEN_ACCESSORS"
+    exit 1
+fi
+
+for src_root in "common/src/main/java" "fabric/src/main/java" "neoforge/src/main/java"; do
+    if [[ -d "$src_root" ]]; then
+        while IFS= read -r java_file; do
+            pkg=$(sed -n -E 's/^[[:space:]]*package[[:space:]]+([a-zA-Z0-9_.]+)[[:space:]]*;.*$/\1/p' "$java_file" | head -n 1)
+            if [[ -n "$pkg" ]]; then
+                expected_dir="$src_root/${pkg//.//}"
+                actual_dir="$(dirname "$java_file")"
+                if [[ "$actual_dir" != "$expected_dir" ]]; then
+                    echo "Package declaration mismatch: $java_file declares package '$pkg' but resides in '$actual_dir' (expected '$expected_dir')."
+                    exit 1
+                fi
+            fi
+        done < <(find "$src_root" -type f -name "*.java" | sort)
+    fi
+done
+
+required_docs=(
+    "AGENTS.md"
+    "CHANGELOG.md"
+    "CONTRIBUTING.md"
+    "SECURITY.md"
+    "docs/architecture.md"
+    "docs/compatibility-matrix.md"
+    "docs/development.md"
+    "docs/installation.md"
+    "docs/modrinth.md"
+    "docs/releases.md"
+    "docs/troubleshooting.md"
+    "docs/wiki/Home.md"
+    "docs/wiki/README.md"
+)
+
+missing_docs=()
+for doc_file in "${required_docs[@]}"; do
+    if [[ ! -f "$doc_file" ]]; then
+        missing_docs+=("$doc_file")
+    fi
+done
+
+if (( ${#missing_docs[@]} > 0 )); then
+    echo "Missing required documentation files:"
+    printf '%s\n' "${missing_docs[@]}"
+    exit 1
+fi
+
+required_tests=(
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/ConstantsContractTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/ItemDisplayControlTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/LocalizationCompletenessTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/architecture/CommonArchitectureTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/config/ItemDisplayConfigStorageTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/config/ProtectionTargetContractTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/interaction/ProtectionTargetResolverTest.java"
+    "common/src/test/java/com/kizio/itemdisplaycontrol/common/config/ItemDisplayRuntimeConfigTest.java"
+    "fabric/src/test/java/com/kizio/itemdisplaycontrol/fabric/FabricKeyMappingsTest.java"
+    "fabric/src/test/java/com/kizio/itemdisplaycontrol/fabric/FabricMetadataContractTest.java"
+    "fabric/src/test/java/com/kizio/itemdisplaycontrol/fabric/FabricStatusMessagesTest.java"
+    "neoforge/src/test/java/com/kizio/itemdisplaycontrol/neoforge/NeoForgeKeyMappingsTest.java"
+    "neoforge/src/test/java/com/kizio/itemdisplaycontrol/neoforge/NeoForgeMetadataContractTest.java"
+    "neoforge/src/test/java/com/kizio/itemdisplaycontrol/neoforge/NeoForgeStatusMessagesTest.java"
+)
+
+missing_tests=()
+for test_file in "${required_tests[@]}"; do
+    if [[ ! -f "$test_file" ]]; then
+        missing_tests+=("$test_file")
+    fi
+done
+
+if (( ${#missing_tests[@]} > 0 )); then
+    echo "Missing required tests:"
+    printf '%s\n' "${missing_tests[@]}"
+    exit 1
+fi
+
+"$ROOT_DIR/scripts/test-version-scripts.sh"
+
+echo "Structure validation passed."

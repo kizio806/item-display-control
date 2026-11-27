@@ -1,0 +1,72 @@
+name: Compatibility Report
+description: The mod does not work correctly with a specific Minecraft version, server, or other mod.
+title: "[Compat] "
+labels: ["compatibility", "triage"]
+body:
+  - type: dropdown
+    id: loader
+    attributes:
+      label: Mod loader
+      options:
+        - Fabric
+        - NeoForge
+    validations:
+      required: true
+
+  - type: input
+    id: mc_version
+    attributes:
+      label: Minecraft version
+      placeholder: "e.g. 26.3, 1.21.11, 1.20.1"
+    validations:
+      required: true
+
+  - type: input
+    id: mod_version
+    attributes:
+      label: Item Display Control version
+      placeholder: "e.g. 1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: loader_version
+    attributes:
+      label: Loader version
+      placeholder: "e.g. Fabric 0.18.4 / NeoForge 26.3.0.3-beta"
+    validations:
+      required: true
+
+  - type: input
+    id: java_version
+    attributes:
+      label: Java version
+      placeholder: "e.g. Java 25, 21, or 17"
+    validations:
+      required: true
+
+  - type: textarea
+    id: conflicting_mod
+    attributes:
+      label: Conflicting mod / server software / environment
+      description: Name the mod, server software, or configuration that causes the issue.
+      placeholder: "e.g. Sodium 0.6.x, PaperMC 1.21.11, OptiFine"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description of the issue
+      description: What breaks and what behavior is observed?
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / crash report
+      description: Paste relevant log excerpts or stacktraces if available.
+      render: text
+    validations:
+      required: false

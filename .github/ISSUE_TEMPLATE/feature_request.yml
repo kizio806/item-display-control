@@ -1,0 +1,64 @@
+name: Feature Request
+description: Suggest an improvement or new behavior for Item Display Control.
+title: "[Feature] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before submitting, check whether this has already been requested in [open issues](../../issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement).
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem statement
+      description: What limitation or pain point are you solving? Be specific.
+      placeholder: "When I play with X block or Y target, I want to block interactions because..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Describe what you want the mod to do and how it should behave.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: loaders
+    attributes:
+      label: Affected loaders
+      options:
+        - label: Fabric
+        - label: NeoForge
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - Client-side protection
+        - Config / settings
+        - Protection targets
+        - GUI / UX
+        - Build / CI
+        - Documentation
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Any alternative approaches you thought of.
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Anything else that might help understand the request (screenshots, server types, etc.)
+    validations:
+      required: false
