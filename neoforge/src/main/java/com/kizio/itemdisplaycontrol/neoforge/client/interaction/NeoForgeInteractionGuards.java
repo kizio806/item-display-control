@@ -9,7 +9,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -90,7 +90,7 @@ public final class NeoForgeInteractionGuards {
         try {
             InteractionResult result = client.gameMode.useItemOn(localPlayer, hand, placementHitResult);
             if (result == InteractionResult.SUCCESS) {
-                localPlayer.swing(hand, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+                localPlayer.swing(hand);
             }
         } finally {
             placementBypassActive = false;
@@ -111,13 +111,13 @@ public final class NeoForgeInteractionGuards {
 
     private static BlockHitResult createPlacementHitResult(HitResult hitResult) {
         return switch (hitResult.getType()) {
-            case BLOCK -> createPlacementHitResultFromBlockHit((BlockHitResult) hitResult);
-            case ENTITY -> createPlacementHitResultFromEntityHit((EntityHitResult) hitResult);
+            case BLOCK -> createPlacementHitResult((BlockHitResult) hitResult);
+            case ENTITY -> createPlacementHitResult((EntityHitResult) hitResult);
             default -> null;
         };
     }
 
-    private static BlockHitResult createPlacementHitResultFromBlockHit(BlockHitResult originalHitResult) {
+    private static BlockHitResult createPlacementHitResult(BlockHitResult originalHitResult) {
         Direction clickedSide = originalHitResult.getDirection();
         BlockPos placementPos = originalHitResult.getBlockPos().relative(clickedSide);
         Direction placementSide = clickedSide.getOpposite();
@@ -129,7 +129,7 @@ public final class NeoForgeInteractionGuards {
         );
     }
 
-    private static BlockHitResult createPlacementHitResultFromEntityHit(EntityHitResult hitResult) {
+    private static BlockHitResult createPlacementHitResult(EntityHitResult hitResult) {
         if (!(hitResult.getEntity() instanceof ItemFrame itemFrame)) {
             return null;
         }
@@ -159,12 +159,12 @@ public final class NeoForgeInteractionGuards {
         return ProjectionMath.clampToBlock(coordinate, blockCoordinate);
     }
 
-    private static ProtectionTarget resolveBlockTarget(Identifier blockId) {
+    private static ProtectionTarget resolveBlockTarget(ResourceLocation blockId) {
         return ProtectionTargetResolver.resolveBlockTarget(blockId.getNamespace(), blockId.getPath());
     }
 
     private static ProtectionTarget resolveEntityTarget(Entity entity) {
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
         return ProtectionTargetResolver.resolveEntityTarget(entityId.getNamespace(), entityId.getPath());
     }
 

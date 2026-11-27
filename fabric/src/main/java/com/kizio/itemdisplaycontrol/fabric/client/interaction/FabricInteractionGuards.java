@@ -8,26 +8,26 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
+import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.decoration.ItemFrameEntity;
+import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.BlockItem;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemPlacementContext;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 @Environment(EnvType.CLIENT)
 public final class FabricInteractionGuards {
@@ -40,80 +40,81 @@ public final class FabricInteractionGuards {
     public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (placementBypassActive || !ItemDisplayControl.isEnabled()) {
-                return InteractionResult.PASS;
+                return ActionResult.PASS;
             }
-            if (player == null || world == null || !world.isClientSide()) {
-                return InteractionResult.PASS;
+            if (player == null || world == null || !world.isClient()) {
+                return ActionResult.PASS;
             }
-            if (player.isSpectator() || player.isShiftKeyDown()) {
-                return InteractionResult.PASS;
+            if (player.isSpectator() || player.isSneaking()) {
+                return ActionResult.PASS;
             }
 
-            ItemStack stack = player.getItemInHand(hand);
+            ItemStack stack = player.getStackInHand(hand);
             if (stack.isEmpty()) {
-                return InteractionResult.PASS;
+                return ActionResult.PASS;
             }
 
             ProtectionTarget target = resolveBlockTarget(world.getBlockState(hitResult.getBlockPos()).getBlock());
             if (target == null || !ItemDisplayControl.shouldBlock(target, resolveItemId(stack.getItem()))) {
-                return InteractionResult.PASS;
+                return ActionResult.PASS;
             }
 
             attemptPlacementBypass(player, hand, createPlacementHitResult(hitResult));
-            return InteractionResult.FAIL;
+            return ActionResult.FAIL;
         });
 
         UseEntityCallback.EVENT.register((player, world, hand, entity, hitResult) -> {
             if (placementBypassActive || !ItemDisplayControl.isEnabled()) {
-                return InteractionResult.PASS;
+                return ActionResult.PASS;
             }
-            if (player == null || world == null || !world.isClientSide()) {
-                return InteractionResult.PASS;
+            if (player == null || world == null || !world.isClient()) {
+                return ActionResult.PASS;
             }
-            if (player.isSpectator() || player.isShiftKeyDown()) {
-                return InteractionResult.PASS;
+            if (player.isSpectator() || player.isSneaking()) {
+                return ActionResult.PASS;
             }
 
-            ItemStack stack = player.getItemInHand(hand);
+            ItemStack stack = player.getStackInHand(hand);
             if (stack.isEmpty()) {
-                return InteractionResult.PASS;
+                return ActionResult.PASS;
             }
 
             ProtectionTarget target = resolveEntityTarget(entity);
             if (target == null || !ItemDisplayControl.shouldBlock(target, resolveItemId(stack.getItem()))) {
-                return InteractionResult.PASS;
+                return ActionResult.PASS;
             }
 
             attemptPlacementBypass(player, hand, createPlacementHitResult(entity, hitResult));
-            return InteractionResult.FAIL;
+            return ActionResult.FAIL;
         });
     }
 
-    private static void attemptPlacementBypass(Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (!(player instanceof LocalPlayer clientPlayer) || hitResult == null) {
+    private static void attemptPlacementBypass(PlayerEntity player, Hand hand, BlockHitResult hitResult) {
+        if (!(player instanceof ClientPlayerEntity clientPlayer) || hitResult == null) {
             return;
         }
 
-        ItemStack stack = player.getItemInHand(hand);
+        ItemStack stack = player.getStackInHand(hand);
         if (!(stack.getItem() instanceof BlockItem)) {
             return;
         }
 
-        Minecraft client = Minecraft.getInstance();
-        if (client.gameMode == null || client.player != clientPlayer) {
+        MinecraftClient client = MinecraftClient.getInstance();
+        if (client.interactionManager == null || client.player != clientPlayer) {
             return;
         }
 
-        BlockPlaceContext placementContext = new BlockPlaceContext(player, hand, stack, hitResult);
+        ItemPlacementContext placementContext = new ItemPlacementContext(player, hand, stack, hitResult);
         if (!placementContext.canPlace()) {
             return;
         }
 
         placementBypassActive = true;
         try {
-            InteractionResult result = client.gameMode.useItemOn(clientPlayer, hand, hitResult);
-            if (result instanceof InteractionResult.Success) {
-                player.swing(hand, net.minecraft.world.item.component.SwingAnimation.DEFAULT, false);
+            ActionResult result = client.interactionManager.interactBlock(clientPlayer, hand, hitResult);
+            if (result instanceof ActionResult.Success success
+                    && success.swingSource() == ActionResult.SwingSource.CLIENT) {
+                player.swingHand(hand);
             }
         } finally {
             placementBypassActive = false;
@@ -121,11 +122,11 @@ public final class FabricInteractionGuards {
     }
 
     private static BlockHitResult createPlacementHitResult(BlockHitResult originalHitResult) {
-        Direction clickedSide = originalHitResult.getDirection();
-        BlockPos placementPos = originalHitResult.getBlockPos().relative(clickedSide);
+        Direction clickedSide = originalHitResult.getSide();
+        BlockPos placementPos = originalHitResult.getBlockPos().offset(clickedSide);
         Direction placementSide = clickedSide.getOpposite();
         return new BlockHitResult(
-                projectHitPosition(originalHitResult.getLocation(), placementPos, placementSide),
+                projectHitPosition(originalHitResult.getPos(), placementPos, placementSide),
                 placementSide,
                 placementPos,
                 false
@@ -133,28 +134,28 @@ public final class FabricInteractionGuards {
     }
 
     private static BlockHitResult createPlacementHitResult(Entity entity, EntityHitResult hitResult) {
-        if (!(entity instanceof ItemFrame itemFrame) || hitResult == null) {
+        if (!(entity instanceof ItemFrameEntity itemFrame) || hitResult == null) {
             return null;
         }
 
-        Direction frameFacing = itemFrame.getDirection();
+        Direction frameFacing = itemFrame.getHorizontalFacing();
         return new BlockHitResult(
-                projectHitPosition(hitResult.getLocation(), itemFrame.getPos(), frameFacing.getOpposite()),
+                projectHitPosition(hitResult.getPos(), itemFrame.getAttachedBlockPos(), frameFacing.getOpposite()),
                 frameFacing.getOpposite(),
-                itemFrame.getPos(),
+                itemFrame.getAttachedBlockPos(),
                 false
         );
     }
 
-    private static Vec3 projectHitPosition(Vec3 originalPos, BlockPos blockPos, Direction side) {
+    private static Vec3d projectHitPosition(Vec3d originalPos, BlockPos blockPos, Direction side) {
         double x = clampToBlock(originalPos.x, blockPos.getX());
         double y = clampToBlock(originalPos.y, blockPos.getY());
         double z = clampToBlock(originalPos.z, blockPos.getZ());
 
         return switch (side.getAxis()) {
-            case X -> new Vec3(side == Direction.WEST ? blockPos.getX() : blockPos.getX() + 1.0D, y, z);
-            case Y -> new Vec3(x, side == Direction.DOWN ? blockPos.getY() : blockPos.getY() + 1.0D, z);
-            case Z -> new Vec3(x, y, side == Direction.NORTH ? blockPos.getZ() : blockPos.getZ() + 1.0D);
+            case X -> new Vec3d(side == Direction.WEST ? blockPos.getX() : blockPos.getX() + 1.0D, y, z);
+            case Y -> new Vec3d(x, side == Direction.DOWN ? blockPos.getY() : blockPos.getY() + 1.0D, z);
+            case Z -> new Vec3d(x, y, side == Direction.NORTH ? blockPos.getZ() : blockPos.getZ() + 1.0D);
         };
     }
 
@@ -163,16 +164,16 @@ public final class FabricInteractionGuards {
     }
 
     private static ProtectionTarget resolveBlockTarget(Block block) {
-        Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
+        Identifier blockId = Registries.BLOCK.getId(block);
         return ProtectionTargetResolver.resolveBlockTarget(blockId.getNamespace(), blockId.getPath());
     }
 
     private static ProtectionTarget resolveEntityTarget(Entity entity) {
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        Identifier entityId = Registries.ENTITY_TYPE.getId(entity.getType());
         return ProtectionTargetResolver.resolveEntityTarget(entityId.getNamespace(), entityId.getPath());
     }
 
     private static String resolveItemId(Item item) {
-        return BuiltInRegistries.ITEM.getKey(item).toString();
+        return Registries.ITEM.getId(item).toString();
     }
 }

@@ -17,7 +17,7 @@ public final class ItemDisplayControlNeoForge {
         IEventBus bus = Objects.requireNonNull(modEventBus, "modEventBus");
         Objects.requireNonNull(modContainer, "modContainer");
 
-        if (FMLEnvironment.getDist() == Dist.CLIENT) {
+        if (FMLEnvironment.dist == Dist.CLIENT) {
             NeoForgeClientBootstrap.init(bus);
         }
     }

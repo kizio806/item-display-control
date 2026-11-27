@@ -4,24 +4,22 @@ import com.kizio.itemdisplaycontrol.common.Constants;
 import com.kizio.itemdisplaycontrol.common.i18n.TranslationKeys;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
-import net.minecraft.client.KeyMapping;
-import com.mojang.blaze3d.platform.InputConstants;
-import net.minecraft.resources.Identifier;
-import org.lwjgl.sdl.SDLKeycode;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
+import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
 public final class FabricKeyMappings {
 
-    private static final int DEFAULT_TOGGLE_KEY = SDLKeycode.SDLK_J;
-    private static final int DEFAULT_CONFIG_KEY = SDLKeycode.SDLK_O;
-
-    private static final KeyMapping.Category KEY_CATEGORY = new KeyMapping.Category(
-            Identifier.fromNamespaceAndPath(Constants.MOD_ID, "itemdisplaycontrol")
+    private static final int DEFAULT_TOGGLE_KEY = GLFW.GLFW_KEY_J;
+    private static final int DEFAULT_CONFIG_KEY = GLFW.GLFW_KEY_O;
+    private static final KeyBinding.Category KEY_CATEGORY = KeyBinding.Category.create(
+            Identifier.of(Constants.MOD_ID, Constants.MOD_ID)
     );
-
-    private static KeyMapping toggleKey;
-    private static KeyMapping configKey;
+    private static KeyBinding toggleKey;
+    private static KeyBinding configKey;
 
     private FabricKeyMappings() {
     }
@@ -31,16 +29,16 @@ public final class FabricKeyMappings {
             return;
         }
 
-        toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 TranslationKeys.KEY_TOGGLE,
-                InputConstants.Type.KEYBOARD,
+                InputUtil.Type.KEYSYM,
                 DEFAULT_TOGGLE_KEY,
                 KEY_CATEGORY
         ));
 
-        configKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
+        configKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 TranslationKeys.KEY_CONFIG,
-                InputConstants.Type.KEYBOARD,
+                InputUtil.Type.KEYSYM,
                 DEFAULT_CONFIG_KEY,
                 KEY_CATEGORY
         ));
@@ -52,7 +50,7 @@ public final class FabricKeyMappings {
         }
 
         boolean pressed = false;
-        while (toggleKey.consumeClick()) {
+        while (toggleKey.wasPressed()) {
             pressed = true;
         }
         return pressed;
@@ -64,7 +62,7 @@ public final class FabricKeyMappings {
         }
 
         boolean pressed = false;
-        while (configKey.consumeClick()) {
+        while (configKey.wasPressed()) {
             pressed = true;
         }
         return pressed;

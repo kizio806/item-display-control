@@ -3,7 +3,29 @@ import groovy.json.JsonSlurper
 import java.util.zip.ZipFile
 
 plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+    id 'fabric-loom' version "${loom_version}"
+}
+
+repositories {
+    maven {
+        name = 'Fabric'
+        url = 'https://maven.fabricmc.net/'
+    }
+    maven {
+        name = 'Terraformers'
+        url = 'https://maven.terraformersmc.com/releases/'
+    }
+    maven {
+        name = 'Mojang'
+        url = 'https://libraries.minecraft.net/'
+    }
+    maven {
+        name = 'MavenCentralLWJGL'
+        url = 'https://repo.maven.apache.org/maven2/'
+        content {
+            includeGroupByRegex 'org\\.lwjgl.*'
+        }
+    }
 }
 
 repositories {
@@ -49,11 +71,12 @@ if (rootProject.ext.sharedVersions.mappings) {
 
 dependencies {
     minecraft "com.mojang:minecraft:${rootProject.ext.sharedVersions.minecraft}"
+    mappings "net.fabricmc:yarn:${rootProject.ext.sharedVersions.mappings}:v2"
 
-    implementation "net.fabricmc:fabric-loader:${loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
-    compileOnly "com.terraformersmc:modmenu:${modmenu_version}"
-    runtimeOnly "com.terraformersmc:modmenu:${modmenu_version}"
+    modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
+    modCompileOnly "com.terraformersmc:modmenu:${modmenu_version}"
+    modRuntimeOnly "com.terraformersmc:modmenu:${modmenu_version}"
 
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter
@@ -159,7 +182,7 @@ def parseMinecraftVersion = { String versionText ->
     [
             major: matcher.group(1).toInteger(),
             minor: matcher.group(2).toInteger(),
-            patch: matcher.group(3) ? matcher.group(3).toInteger() : 0
+            patch: matcher.group(3) != null ? matcher.group(3).toInteger() : 0
     ]
 }
 

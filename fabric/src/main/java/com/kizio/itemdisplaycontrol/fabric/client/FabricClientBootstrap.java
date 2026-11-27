@@ -6,7 +6,7 @@ import com.kizio.itemdisplaycontrol.fabric.client.input.FabricKeyMappings;
 import com.kizio.itemdisplaycontrol.fabric.client.interaction.FabricInteractionGuards;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
+import net.minecraft.client.MinecraftClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,9 +30,9 @@ public final class FabricClientBootstrap {
         FabricKeyMappings.register();
         FabricInteractionGuards.register();
 
-        Minecraft client = Minecraft.getInstance();
-        Path configDir = client != null && client.gameDirectory != null
-                ? client.gameDirectory.toPath().resolve("config")
+        MinecraftClient client = MinecraftClient.getInstance();
+        Path configDir = client != null && client.runDirectory != null
+                ? client.runDirectory.toPath().resolve("config")
                 : Path.of("config");
 
         ItemDisplayControl.init(FabricStatusMessages::sendToggleStatus, configDir);

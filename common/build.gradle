@@ -20,6 +20,24 @@ dependencies {
     testImplementation libs.archunit.junit5
 }
 
+jacoco {
+    toolVersion = '0.8.12'
+}
+
+tasks.named('test') {
+    finalizedBy(tasks.named('jacocoTestReport'))
+}
+
+tasks.named('jacocoTestReport') {
+    dependsOn(tasks.named('test'))
+
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
 jacocoTestCoverageVerification {
     dependsOn tasks.named('jacocoTestReport')
     violationRules {
@@ -41,5 +59,4 @@ jacocoTestCoverageVerification {
 tasks.named('check') {
     dependsOn tasks.named('jacocoTestCoverageVerification')
 }
-
 

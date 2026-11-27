@@ -11,10 +11,6 @@ updates:
     labels:
       - "dependencies"
       - "github-actions"
-    groups:
-      github-actions:
-        patterns:
-          - "*"
 
   - package-ecosystem: "gradle"
     directory: "/"

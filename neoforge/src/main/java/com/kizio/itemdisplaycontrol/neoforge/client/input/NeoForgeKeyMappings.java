@@ -5,27 +5,22 @@ import net.minecraft.client.KeyMapping;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
-import org.lwjgl.sdl.SDLKeycode;
+import org.lwjgl.glfw.GLFW;
 
 @OnlyIn(Dist.CLIENT)
 public final class NeoForgeKeyMappings {
 
-    private static final int DEFAULT_TOGGLE_KEY = SDLKeycode.SDLK_J;
-    private static final int DEFAULT_CONFIG_KEY = SDLKeycode.SDLK_O;
-
-    private static final KeyMapping.Category KEY_CATEGORY = new KeyMapping.Category(
-            net.minecraft.resources.Identifier.parse("itemdisplaycontrol:itemdisplaycontrol")
-    );
-
+    private static final int DEFAULT_TOGGLE_KEY = GLFW.GLFW_KEY_J;
+    private static final int DEFAULT_CONFIG_KEY = GLFW.GLFW_KEY_O;
     private static final KeyMapping TOGGLE_KEY = new KeyMapping(
             TranslationKeys.KEY_TOGGLE,
             DEFAULT_TOGGLE_KEY,
-            KEY_CATEGORY
+            TranslationKeys.CATEGORY
     );
     private static final KeyMapping CONFIG_KEY = new KeyMapping(
             TranslationKeys.KEY_CONFIG,
             DEFAULT_CONFIG_KEY,
-            KEY_CATEGORY
+            TranslationKeys.CATEGORY
     );
 
     private NeoForgeKeyMappings() {
