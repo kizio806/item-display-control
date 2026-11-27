@@ -40,8 +40,8 @@ flowchart TD
   - Verify assumptions using debugger, log outputs, or test assertions.
   - Verify if the bug affects both Fabric and NeoForge or only one loader.
 - **Evaluate Side Effects:**
-  - Could fixing this cause rubberbanding on high-latency connections?
-  - Could this alter the player's legitimate jumping height or timing?
+  - Could fixing this cause desync or ghost items on high-latency connections?
+  - Could this alter the player's legitimate placement mechanics or sneak bypass?
 
 ---
 

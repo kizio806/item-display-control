@@ -9,7 +9,7 @@ description: Implement, refactor, or debug loader-specific adapters across Fabri
 Use this skill when:
 - Adding a new UI screen, widget, or configuration option that must exist on both Fabric and NeoForge.
 - Adding or modifying keybindings.
-- Adjusting how Minecraft player state (`onGround`, `getY`, `jumpFromGround`) is fetched.
+- Adjusting how Minecraft player interaction events or placement states are handled.
 - Fixing divergence or copy-paste inconsistencies between `fabric` and `neoforge` modules.
 
 ## Required steps

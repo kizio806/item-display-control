@@ -1,34 +1,28 @@
 package com.kizio.itemdisplaycontrol.fabric.client.interaction;
 
+import com.kizio.itemdisplaycontrol.client.interaction.ClientPlacementHelper;
 import com.kizio.itemdisplaycontrol.common.ItemDisplayControl;
 import com.kizio.itemdisplaycontrol.common.config.ProtectionTarget;
-import com.kizio.itemdisplaycontrol.common.interaction.ProtectionTargetResolver;
-import com.kizio.itemdisplaycontrol.common.math.ProjectionMath;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.ItemFrame;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.EntityHitResult;
-import net.minecraft.world.phys.Vec3;
 
+/**
+ * Fabric client interaction event interceptor.
+ * <p>
+ * Blocks unintended interactions with protected blocks and entities (e.g. flower pots,
+ * item frames, armor stands) while allowing sneak bypass and projecting adjacent block placements.
+ */
 @Environment(EnvType.CLIENT)
 public final class FabricInteractionGuards {
 
@@ -37,6 +31,9 @@ public final class FabricInteractionGuards {
     private FabricInteractionGuards() {
     }
 
+    /**
+     * Registers client-side block and entity right-click interception callbacks.
+     */
     public static void register() {
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
             if (placementBypassActive || !ItemDisplayControl.isEnabled()) {
@@ -54,12 +51,12 @@ public final class FabricInteractionGuards {
                 return InteractionResult.PASS;
             }
 
-            ProtectionTarget target = resolveBlockTarget(world.getBlockState(hitResult.getBlockPos()).getBlock());
-            if (target == null || !ItemDisplayControl.shouldBlock(target, resolveItemId(stack.getItem()))) {
+            ProtectionTarget target = ClientPlacementHelper.resolveBlockTarget(world.getBlockState(hitResult.getBlockPos()).getBlock());
+            if (target == null || !ItemDisplayControl.shouldBlock(target, ClientPlacementHelper.resolveItemId(stack.getItem()))) {
                 return InteractionResult.PASS;
             }
 
-            attemptPlacementBypass(player, hand, createPlacementHitResult(hitResult));
+            attemptPlacementBypass(player, hand, ClientPlacementHelper.createPlacementHitResult(hitResult));
             return InteractionResult.FAIL;
         });
 
@@ -79,12 +76,12 @@ public final class FabricInteractionGuards {
                 return InteractionResult.PASS;
             }
 
-            ProtectionTarget target = resolveEntityTarget(entity);
-            if (target == null || !ItemDisplayControl.shouldBlock(target, resolveItemId(stack.getItem()))) {
+            ProtectionTarget target = ClientPlacementHelper.resolveEntityTarget(entity);
+            if (target == null || !ItemDisplayControl.shouldBlock(target, ClientPlacementHelper.resolveItemId(stack.getItem()))) {
                 return InteractionResult.PASS;
             }
 
-            attemptPlacementBypass(player, hand, createPlacementHitResult(entity, hitResult));
+            attemptPlacementBypass(player, hand, ClientPlacementHelper.createPlacementHitResult(entity, hitResult));
             return InteractionResult.FAIL;
         });
     }
@@ -118,61 +115,5 @@ public final class FabricInteractionGuards {
         } finally {
             placementBypassActive = false;
         }
-    }
-
-    private static BlockHitResult createPlacementHitResult(BlockHitResult originalHitResult) {
-        Direction clickedSide = originalHitResult.getDirection();
-        BlockPos placementPos = originalHitResult.getBlockPos().relative(clickedSide);
-        Direction placementSide = clickedSide.getOpposite();
-        return new BlockHitResult(
-                projectHitPosition(originalHitResult.getLocation(), placementPos, placementSide),
-                placementSide,
-                placementPos,
-                false
-        );
-    }
-
-    private static BlockHitResult createPlacementHitResult(Entity entity, EntityHitResult hitResult) {
-        if (!(entity instanceof ItemFrame itemFrame) || hitResult == null) {
-            return null;
-        }
-
-        Direction frameFacing = itemFrame.getDirection();
-        return new BlockHitResult(
-                projectHitPosition(hitResult.getLocation(), itemFrame.getPos(), frameFacing.getOpposite()),
-                frameFacing.getOpposite(),
-                itemFrame.getPos(),
-                false
-        );
-    }
-
-    private static Vec3 projectHitPosition(Vec3 originalPos, BlockPos blockPos, Direction side) {
-        double x = clampToBlock(originalPos.x, blockPos.getX());
-        double y = clampToBlock(originalPos.y, blockPos.getY());
-        double z = clampToBlock(originalPos.z, blockPos.getZ());
-
-        return switch (side.getAxis()) {
-            case X -> new Vec3(side == Direction.WEST ? blockPos.getX() : blockPos.getX() + 1.0D, y, z);
-            case Y -> new Vec3(x, side == Direction.DOWN ? blockPos.getY() : blockPos.getY() + 1.0D, z);
-            case Z -> new Vec3(x, y, side == Direction.NORTH ? blockPos.getZ() : blockPos.getZ() + 1.0D);
-        };
-    }
-
-    private static double clampToBlock(double coordinate, int blockCoordinate) {
-        return ProjectionMath.clampToBlock(coordinate, blockCoordinate);
-    }
-
-    private static ProtectionTarget resolveBlockTarget(Block block) {
-        Identifier blockId = BuiltInRegistries.BLOCK.getKey(block);
-        return ProtectionTargetResolver.resolveBlockTarget(blockId.getNamespace(), blockId.getPath());
-    }
-
-    private static ProtectionTarget resolveEntityTarget(Entity entity) {
-        Identifier entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
-        return ProtectionTargetResolver.resolveEntityTarget(entityId.getNamespace(), entityId.getPath());
-    }
-
-    private static String resolveItemId(Item item) {
-        return BuiltInRegistries.ITEM.getKey(item).toString();
     }
 }
