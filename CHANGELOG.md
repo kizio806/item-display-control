@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0+mc1.21.0-1.21.8
+
+### Added
+- Unified support for Minecraft 1.21.0 through 1.21.8 across Fabric and NeoForge under a single artifact per loader.
+- Multi-version compatibility layer covering Fabric API `>=0.100.8` and NeoForge `21.0` through `21.8`.
+
+### Changed
+- Adapted Fabric keybinding categories to the Minecraft 1.21.0-1.21.8 string category standard.
+
 ## 1.0.0+mc1.21.9-1.21.11
 
 ### Added
