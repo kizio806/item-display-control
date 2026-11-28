@@ -43,7 +43,8 @@ sonar {
         property 'sonar.projectKey', 'kizio806_item-display-control'
         property 'sonar.organization', 'kizio806'
         property 'sonar.host.url', 'https://sonarcloud.io'
-        property 'sonar.coverage.exclusions', 'fabric/**,neoforge/**'
+        property 'sonar.coverage.exclusions', 'fabric/**,neoforge/**,**/fabric/**,**/neoforge/**'
+        property 'sonar.cpd.exclusions', 'fabric/**,neoforge/**,**/fabric/**,**/neoforge/**'
     }
 }
 
@@ -64,6 +65,7 @@ subprojects {
                 property 'sonar.coverage.jacoco.xmlReportPaths', "${projectDir}/build/reports/jacoco/test/jacocoTestReport.xml"
             } else {
                 property 'sonar.coverage.exclusions', '**/*'
+                property 'sonar.cpd.exclusions', '**/*'
             }
         }
     }

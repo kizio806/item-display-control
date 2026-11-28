@@ -15,12 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * Core thread-safe domain engine for Item Display Control.
- * <p>
- * Manages runtime configuration, evaluates target blocking rules with whitelist and blacklist logic,
- * debounces configuration persistence, and ensures asynchronous disk I/O without main-thread stutter.
- */
 public final class ItemDisplayControlEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Constants.MOD_ID);

@@ -3,10 +3,6 @@ package com.kizio.itemdisplaycontrol.common.interaction;
 import com.kizio.itemdisplaycontrol.common.config.ProtectionTarget;
 
 import java.util.Objects;
-/**
- * Resolves Minecraft block and entity identifiers into canonical {@link ProtectionTarget} categories.
- * Pure Java, loader-agnostic utility.
- */
 public final class ProtectionTargetResolver {
 
     private static final String VANILLA_NAMESPACE = "minecraft";
