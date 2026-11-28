@@ -11,8 +11,8 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
-import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.TickEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,7 +53,10 @@ public final class NeoForgeClientBootstrap {
         });
     }
 
-    private static void onClientTick(ClientTickEvent.Post event) {
+    private static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) {
+            return;
+        }
         ItemDisplayControl.onClientTick();
         if (NeoForgeKeyMappings.consumeTogglePress()) {
             ItemDisplayControl.toggleEnabled();

@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0+mc1.20.2-1.20.4
+
+### Added
+- Unified support for Minecraft 1.20.2 through 1.20.4 across Fabric and NeoForge under a single artifact per loader.
+- Multi-version compatibility layer covering Fabric API `>=0.91.0` and NeoForge `20.2` through `20.4`.
+
+### Changed
+- Adapted NeoForge client tick handling to the `TickEvent.ClientTickEvent` standard.
+- Enforced Java 17 toolchain baseline for the Minecraft 1.20.2-1.20.4 series.
+
 ## 1.0.0+mc1.20.5-1.20.6
 
 ### Added

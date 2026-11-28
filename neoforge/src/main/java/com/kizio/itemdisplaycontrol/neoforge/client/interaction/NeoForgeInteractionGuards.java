@@ -67,7 +67,8 @@ public final class NeoForgeInteractionGuards {
     }
 
     private static void attemptPlacementBypass(Minecraft client, InteractionHand hand, HitResult hitResult) {
-        if (!(client.player instanceof LocalPlayer localPlayer) || client.gameMode == null) {
+        LocalPlayer localPlayer = client.player;
+        if (localPlayer == null || client.gameMode == null) {
             return;
         }
 
