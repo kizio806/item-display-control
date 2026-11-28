@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0+mc1.20.5-1.20.6
+
+### Added
+- Unified support for Minecraft 1.20.5 through 1.20.6 across Fabric and NeoForge under a single artifact per loader.
+- Multi-version compatibility layer covering Fabric API `>=0.97.7` and NeoForge `20.5` through `20.6`.
+
+### Changed
+- Adapted Fabric interaction guards to Minecraft 1.20.5-1.20.6 `ActionResult` enum and entity decoration block position APIs.
+
 ## 1.0.0+mc1.21.0-1.21.8
 
 ### Added

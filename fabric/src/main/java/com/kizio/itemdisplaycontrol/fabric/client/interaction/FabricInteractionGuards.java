@@ -112,8 +112,7 @@ public final class FabricInteractionGuards {
         placementBypassActive = true;
         try {
             ActionResult result = client.interactionManager.interactBlock(clientPlayer, hand, hitResult);
-            if (result instanceof ActionResult.Success success
-                    && success.swingSource() == ActionResult.SwingSource.CLIENT) {
+            if (result == ActionResult.SUCCESS) {
                 player.swingHand(hand);
             }
         } finally {
@@ -140,9 +139,9 @@ public final class FabricInteractionGuards {
 
         Direction frameFacing = itemFrame.getHorizontalFacing();
         return new BlockHitResult(
-                projectHitPosition(hitResult.getPos(), itemFrame.getAttachedBlockPos(), frameFacing.getOpposite()),
+                projectHitPosition(hitResult.getPos(), itemFrame.getDecorationBlockPos(), frameFacing.getOpposite()),
                 frameFacing.getOpposite(),
-                itemFrame.getAttachedBlockPos(),
+                itemFrame.getDecorationBlockPos(),
                 false
         );
     }
