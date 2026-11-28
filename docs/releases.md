@@ -19,6 +19,10 @@ Examples:
 - `1.0.0+mc26.2.x` (active on `support/26.2.x`)
 - `1.0.0+mc26.1.x` (active on `support/26.1.x`)
 - `1.0.0+mc1.21.9-1.21.11` (active on `support/1.21.9-1.21.11`)
+- `1.0.0+mc1.21.0-1.21.8` (active on `support/1.21.0-1.21.8`)
+- `1.0.0+mc1.20.5-1.20.6` (active on `support/1.20.5-1.20.6`)
+- `1.0.0+mc1.20.2-1.20.4` (active on `support/1.20.2-1.20.4`)
+- `1.0.0+mc1.20.0-1.20.1` (active on `support/1.20.0-1.20.1`)
 
 ### Increment Semantics
 
@@ -41,11 +45,15 @@ main:                    1.0.0+mc26.3.x
 support/26.2.x:          1.0.0+mc26.2.x
 support/26.1.x:          1.0.0+mc26.1.x
 support/1.21.9-1.21.11:  1.0.0+mc1.21.9-1.21.11
+support/1.21.0-1.21.8:   1.0.0+mc1.21.0-1.21.8
+support/1.20.5-1.20.6:   1.0.0+mc1.20.5-1.20.6
+support/1.20.2-1.20.4:   1.0.0+mc1.20.2-1.20.4
+support/1.20.0-1.20.1:   1.0.0+mc1.20.0-1.20.1
 ```
 
 ### Backport and Parity Mandate
 
-1. When a new feature, bug fix, or security update is introduced on `main`, the change must be adapted and backported across all active support branches (`support/26.2.x`, `support/26.1.x`, `support/1.21.9-1.21.11`).
+1. When a new feature, bug fix, or security update is introduced on `main`, the change must be adapted and backported across all active support branches (`support/26.2.x`, `support/26.1.x`, `support/1.21.9-1.21.11`, `support/1.21.0-1.21.8`, `support/1.20.5-1.20.6`, `support/1.20.2-1.20.4`, `support/1.20.0-1.20.1`).
 2. When a version increment occurs (e.g., from `1.0.0` to `1.0.1` or `1.1.0`), the increment is applied to **all** active branches in lockstep.
 3. **Never** independently increment the base version on a single branch.
 4. **Never** publish a higher base version for one active branch while leaving another active branch on an older base version.
@@ -63,6 +71,10 @@ The repository maintains dedicated long-term branches corresponding to distinct 
 | `support/26.2.x` | Minecraft 26.2.x | **Active Support** | Synchronized features, backported bug fixes, and security updates. |
 | `support/26.1.x` | Minecraft 26.1.x (26.1–26.1.2) | **Active Support** | Synchronized features, backported bug fixes, and security updates. |
 | `support/1.21.9-1.21.11` | Minecraft 1.21.9–1.21.11 | **Active Support** | Synchronized features, backported bug fixes, and security updates. |
+| `support/1.21.0-1.21.8` | Minecraft 1.21.0–1.21.8 | **LTS Support** | Synchronized features, backported bug fixes, and security updates. |
+| `support/1.20.5-1.20.6` | Minecraft 1.20.5–1.20.6 | **LTS Support** | Synchronized features, backported bug fixes, and security updates. |
+| `support/1.20.2-1.20.4` | Minecraft 1.20.2–1.20.4 | **LTS Support** | Synchronized features, backported bug fixes, and security updates. |
+| `support/1.20.0-1.20.1` | Minecraft 1.20.0–1.20.1 | **LTS Support** | Synchronized features, backported bug fixes, and security updates. |
 
 ### End-of-Life (EOL) Policy
 
@@ -86,6 +98,10 @@ Examples on `support/1.21.9-1.21.11`:
 - `item-display-control-1.0.0-mc1.21.9-1.21.11-fabric.jar`
 - `item-display-control-1.0.0-mc1.21.9-1.21.11-neoforge.jar`
 
+Examples on `support/1.21.0-1.21.8`:
+- `item-display-control-1.0.0-mc1.21.0-1.21.8-fabric.jar`
+- `item-display-control-1.0.0-mc1.21.0-1.21.8-neoforge.jar`
+
 ### Multi-Version JAR Invariant
 A single JAR covers its entire compatibility range:
 - **Fabric (`fabric.mod.json`)**: Declares `fabric_minecraft_version_range` covering all patch versions in the line (e.g. `>=26.3 <26.4` or `>=1.21.9 <1.21.12`).
@@ -108,6 +124,10 @@ Examples:
 - `v1.0.0+mc26.2.x`
 - `v1.0.0+mc26.1.x`
 - `v1.0.0+mc1.21.9-1.21.11`
+- `v1.0.0+mc1.21.0-1.21.8`
+- `v1.0.0+mc1.20.5-1.20.6`
+- `v1.0.0+mc1.20.2-1.20.4`
+- `v1.0.0+mc1.20.0-1.20.1`
 
 ### GitHub Release Title Convention
 
@@ -120,6 +140,10 @@ Examples:
 - `v1.0.0 — Minecraft 26.2.x`
 - `v1.0.0 — Minecraft 26.1.x`
 - `v1.0.0 — Minecraft 1.21.9–1.21.11`
+- `v1.0.0 — Minecraft 1.21.0–1.21.8`
+- `v1.0.0 — Minecraft 1.20.5–1.20.6`
+- `v1.0.0 — Minecraft 1.20.2–1.20.4`
+- `v1.0.0 — Minecraft 1.20.0–1.20.1`
 
 Each GitHub Release contains **only** the artifacts built for its compatibility line:
 - 1 Fabric JAR
