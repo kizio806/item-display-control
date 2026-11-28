@@ -22,11 +22,11 @@ Use this skill when:
 3. **Source Hygiene and Comments Audit:**
    - Run `./scripts/validate-source-hygiene.sh` to ensure no marker tags (`TODO`, `FIXME`, `XXX`), wildcard imports, or warning suppressions (`@SuppressWarnings`) exist.
 4. **Loader Duplication Analysis:**
-   - Compare `fabric/src/main/java` and `neoforge/src/main/java` implementations (specifically GUI screens, keybindings, and jump inputs) for copy-paste divergence.
+   - Compare `fabric/src/main/java` and `neoforge/src/main/java` implementations (specifically GUI screens, keybindings, and interaction guards) for copy-paste divergence.
 5. **Localization Completeness Check:**
    - Run `LocalizationCompletenessTest` to verify that all 10 language JSON files maintain key and placeholder symmetry.
 6. **Test Coverage Analysis:**
-   - Run `./gradlew test jacocoTestReport` and inspect `common/build/reports/jacoco/test/html/index.html` to identify untested execution branches in `JumpHandler`, `ConfigManager`, and `RuntimeState`.
+   - Run `./gradlew test jacocoTestReport` and inspect `common/build/reports/jacoco/test/html/index.html` to identify untested execution branches in `ItemDisplayControlEngine`, `ItemDisplayRuntimeConfig`, and `ProtectionTargetResolver`.
 
 ## Analysis process
 ```text

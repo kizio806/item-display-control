@@ -19,7 +19,7 @@ Use this skill when:
      ```
    - Check if Yarn mappings and dependencies exist for that target version.
 2. **Determine Compatibility & API Changes:**
-   - Inspect upstream Minecraft decompiled changes affecting `player.onGround()`, `player.jumpFromGround()`, `KeyMapping`, or `Screen`.
+   - Inspect upstream Minecraft decompiled changes affecting interaction callbacks, `BlockHitResult`, `EntityHitResult`, `KeyMapping`, or `Screen`.
 3. **Update Version Metadata:**
    - Run the version configuration script:
      ```bash
@@ -34,7 +34,7 @@ Use this skill when:
      ```
 4. **Compile and Fix Breakages:**
    - Run `./gradlew clean compileJava compileTestJava` for all subprojects.
-   - Adjust loader client adapters (`FabricJumpInput`, `NeoForgeJumpInput`, `FabricSettingsScreen`, `NeoForgeSettingsScreen`) if Minecraft UI or input classes changed.
+   - Adjust loader client adapters (`FabricInteractionGuards`, `NeoForgeInteractionGuards`, `FabricSettingsScreen`, `NeoForgeSettingsScreen`) if Minecraft UI or interaction classes changed.
 5. **Verify Version Matrix Gates:**
    - Run `./gradlew verifyMinecraftVersionMatrix verifySemverVersion`.
 6. **Execute Full Test & Packaging Gauntlet:**

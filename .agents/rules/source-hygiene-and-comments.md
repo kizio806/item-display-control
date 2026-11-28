@@ -13,14 +13,14 @@ In the `item-display-control` codebase, code must maintain high readability and 
 ## Do:
 ```java
 // Correct: Descriptive method explaining intent clearly
-public boolean hasSufficientGroundedTicks(int groundedTicks, int requiredGroundedTicks) {
-    return groundedTicks >= requiredGroundedTicks;
+public boolean shouldBlock(ProtectionTarget target, String itemId) {
+    return runtimeConfig.enabled() && runtimeConfig.isProtected(target) && !runtimeConfig.canInsert(itemId);
 }
 
-// Correct: Explanatory comment clarifying a non-obvious timing contract or edge case
-// Low ceiling collisions can cause immediate landing before airborne ticks reach the confirmation threshold.
-if (jumpLiftObserved && jumpAirborneTicks < MIN_AIRBORNE_TICKS_FOR_CONFIRMATION) {
-    onJumpInconclusive();
+// Correct: Explanatory comment clarifying a non-obvious placement contract or edge case
+// Sneak key bypass allows immediate intentional item insertion without changing settings.
+if (player.isShiftKeyDown()) {
+    return InteractionResult.PASS;
 }
 
 // Correct: Explicit single-class imports
