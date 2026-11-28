@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0+mc1.20.0-1.20.1
+
+### Added
+- Unified support for Minecraft 1.20.0 through 1.20.1 across Fabric and NeoForge under a single artifact per loader.
+- Multi-version compatibility layer covering Fabric API `>=0.83.0` and NeoForge/Forge 47 toolchain (`net.neoforged.moddev.legacyforge`).
+
+### Changed
+- Adapted Forge 47 client bootstrap, event bus, and `ForgeRegistries` access for Minecraft 1.20.0-1.20.1.
+- Updated screen background rendering to `renderBackground(GuiGraphics)` and `renderBackground(DrawContext)` single-parameter APIs.
+
 ## 1.0.0+mc1.20.2-1.20.4
 
 ### Added

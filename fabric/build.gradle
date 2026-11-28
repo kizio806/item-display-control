@@ -307,7 +307,7 @@ tasks.named('check') {
 }
 
 jar {
-    archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar"
+    archiveFileName.set("${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar")
     archiveClassifier.set('')
     from(rootProject.file('LICENSE')) {
         rename { "${it}_${mod_id}" }
@@ -315,28 +315,33 @@ jar {
 }
 
 tasks.named('sourcesJar') {
-    archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources.jar"
+    archiveFileName.set("${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources.jar")
     archiveClassifier.set('')
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 afterEvaluate {
-    if (tasks.findByName('remapJar') != null) {
-        tasks.named('remapJar') {
-            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar"
-        }
+    def remapJarTask = tasks.findByName('remapJar')
+    if (remapJarTask != null) {
         tasks.named('jar') {
             destinationDirectory.set(layout.buildDirectory.dir('intermediates/libs'))
-            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-dev.jar"
+            archiveFileName.set("${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-dev.jar")
+        }
+        remapJarTask.configure {
+            archiveFileName.set("${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric.jar")
+            archiveClassifier.set('')
         }
     }
-    if (tasks.findByName('remapSourcesJar') != null) {
-        tasks.named('remapSourcesJar') {
-            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources.jar"
-        }
+
+    def remapSourcesJarTask = tasks.findByName('remapSourcesJar')
+    if (remapSourcesJarTask != null) {
         tasks.named('sourcesJar') {
             destinationDirectory.set(layout.buildDirectory.dir('intermediates/libs'))
-            archiveFileName = "${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources-dev.jar"
+            archiveFileName.set("${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources-dev.jar")
+        }
+        remapSourcesJarTask.configure {
+            archiveFileName.set("${artifactBaseName}-${baseVersion}-${mcMetadata}-fabric-sources.jar")
+            archiveClassifier.set('')
         }
     }
 }

@@ -8,8 +8,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -22,9 +22,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.event.InputEvent;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.event.InputEvent;
 
 @OnlyIn(Dist.CLIENT)
 public final class NeoForgeInteractionGuards {
@@ -101,7 +101,7 @@ public final class NeoForgeInteractionGuards {
     private static ProtectionTarget resolveTarget(HitResult hitResult, Minecraft client) {
         return switch (hitResult.getType()) {
             case BLOCK -> resolveBlockTarget(
-                    BuiltInRegistries.BLOCK.getKey(
+                    ForgeRegistries.BLOCKS.getKey(
                             client.level.getBlockState(((BlockHitResult) hitResult).getBlockPos()).getBlock()
                     )
             );
@@ -165,12 +165,12 @@ public final class NeoForgeInteractionGuards {
     }
 
     private static ProtectionTarget resolveEntityTarget(Entity entity) {
-        ResourceLocation entityId = BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType());
+        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entity.getType());
         return ProtectionTargetResolver.resolveEntityTarget(entityId.getNamespace(), entityId.getPath());
     }
 
     private static String resolveItemId(Item item) {
-        return BuiltInRegistries.ITEM.getKey(item).toString();
+        return ForgeRegistries.ITEMS.getKey(item).toString();
     }
 
 }
