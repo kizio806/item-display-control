@@ -25,7 +25,7 @@ public final class FabricEvents {
             if (FabricKeyMappings.consumeConfigScreenPress()) {
                 Minecraft minecraftClient = Minecraft.getInstance();
                 if (minecraftClient != null) {
-                    minecraftClient.setScreen(new FabricSettingsScreen(minecraftClient.screen));
+                    minecraftClient.setScreenAndShow(new FabricSettingsScreen(minecraftClient.gui.screen()));
                 }
             }
         });

@@ -13,10 +13,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.Objects;
 import java.util.Properties;
 
-/**
- * Persistent configuration storage for Item Display Control.
- * Handles reading from and atomic writing to properties files.
- */
 public final class ItemDisplayConfigStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ItemDisplayConfigStorage.class);

@@ -1,7 +1,4 @@
 package com.kizio.itemdisplaycontrol.common;
-/**
- * Core identifiers and metadata constants for Item Display Control.
- */
 public final class Constants {
 
     public static final String MOD_ID = "itemdisplaycontrol";
